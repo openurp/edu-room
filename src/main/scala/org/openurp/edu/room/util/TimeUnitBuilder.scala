@@ -49,13 +49,10 @@ class TimeUnitBuilder {
 		val time = WeekTimeBuilder.of(start, beginAt, endAt)
 		if (times.isEmpty) times += time
 		else {
-			times.foreach(t => {
-				if (WeekTimes.canMergerWith(t, time)) {
-					WeekTimes.mergeWith(t, time)
-				} else {
-					times += time
-				}
-			})
+			times.find(t => WeekTimes.canMergerWith(t, time)) match {
+				case Some(t) => WeekTimes.mergeWith(t, time)
+				case None => times += time
+			}
 		}
 	}
 

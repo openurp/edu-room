@@ -31,7 +31,7 @@ object WeekTime {
 	def of(date: LocalDate): WeekTime = {
 		val yearStartOn = getStartOn(date.getYear, WeekDay.of(date))
 		val weektime = new WeekTime
-		weektime.startOn = date
+		weektime.startOn = yearStartOn
 		weektime.weekstate = WeekState.of(ChronoUnit.WEEKS.between(yearStartOn, date).toInt + 1)
 		weektime
 	}

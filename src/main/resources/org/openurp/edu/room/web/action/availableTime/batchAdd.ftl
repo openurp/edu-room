@@ -4,28 +4,15 @@ ${b.script("my97","WdatePicker.js")}
 [@b.toolbar title="设置可用时间"]bar.addBack();[/@]
 [@b.tabs]
 [#--[@b.form action=b.rest.save(availableTime) theme="list" onsubmit="validTime"]--]
-    [#assign sa][#if availableTime.persisted]!saveTime?availableTime.id=${availableTime.id}[#else]!saveTime[/#if][/#assign]
-    [@b.form action=sa theme="list" onsubmit="validTime"]
+    [@b.form action="!batchSave" theme="list" onsubmit="validTime"]
 			<table class="formTable" align="center" width="100%">
 				<tr>
-					<td class="title" align="right"><font color="red">*</font>选择教室：</td>
-					<td>
-              [#if availableTime.persisted]<input type="hidden" name="availableTime.room"
-																									value="${availableTime.room.code}"/>${availableTime.room.name}
-              [#else ]
-[#--              								<select name="availableTime.room" style="width:200px;">--]
-[#--                                  [#list rooms as room]--]
-[#--              											<option value="${(room.code)!}" selected>${(room.name)!}</option>--]
-[#--                                  [/#list]--]
-[#--              								</select>--]
-[#--                          [@b.select name="availableTime.room.id" label="" items=rooms option="id,name" empty="..." /]--]
-								<select id="rooms" name="availableTime.room" style="width:200px;" required>
-									<option value="${(availableTime.room.code)!}" selected>${(availableTime.room.name)!}</option>
-								</select>
-              [/#if ]
+					<td class="title" align="right" width="15%"><font color="red">*</font>教室代码：</td>
+					<td width="35%">
+              <input name="availableTime.room" type="text" style="width:400px" title="教室代码"/>(多个教室代码使用,隔开)
 					</td>
-					<td class="title" id="f_cycleCount" align="right"><font color="red">*</font>时间周期：</td>
-					<td>每&nbsp;<input type="text" title="时间周期" name="cycleTime.cycleCount" style="width:20px" value="1"
+					<td class="title" id="f_cycleCount" align="right" width="15%"><font color="red">*</font>时间周期：</td>
+					<td width="35%">每&nbsp;<input type="text" title="时间周期" name="cycleTime.cycleCount" style="width:20px" value="1"
 														maxlength="2"/>
 						<select name="cycleTime.cycleType" items={} label="">
 							<option value="1">天</option>
@@ -56,31 +43,7 @@ ${b.script("my97","WdatePicker.js")}
         [/@]
     [/@]
 [/@]
-[#--<script language="JavaScript" type="text/JavaScript" src="${base}/static/js/ajax-chosen.js"></script>--]
 <script>
-		beangle.load(["jquery-ui", "jquery-chosen", "jquery-colorbox"], function () {
-			beangle.require(["${base}/static/js/ajax-chosen.js"], function () {
-				jQuery("#rooms").ajaxChosen(
-					{
-						method: 'POST',
-						url: '${b.url("!roomAjax")}',
-						postData: function () {
-							return {
-								pageIndex: 1,
-								pageSize: 10,
-							}
-						}
-					}
-					, function (data) {
-						var dataObj = eval("(" + data + ")");
-						var items = {};
-						jQuery.each(dataObj.rooms, function (i, room) {
-							items[room.code] = room.name;
-						});
-						return items;
-					});
-			})
-		})
 
 	function validTime(form) {
 		var beginOn = form["cycleTime.beginOn"].value;
@@ -95,6 +58,7 @@ ${b.script("my97","WdatePicker.js")}
 		var endDate = parseInt(endOn.substr(8, 2), 10);
 		var date2 = new Date(endYear, endMonth - 1, endDate);
 		var tmp;
+		jQuery("input[name='availableTime.room']").require().match('notBlank')
 		if (form["cycleTime.cycleType"].value == "2") {
 			tmp = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate() + (7 * cycleCount));
 		} else if (form["cycleTime.cycleType"].value == "1") {

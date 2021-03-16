@@ -20,7 +20,7 @@ package org.openurp.edu.room.web.action
 
 import java.time.Instant
 
-import org.beangle.commons.lang.time.HourMinute
+import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
@@ -28,6 +28,8 @@ import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.Campus
 import org.openurp.boot.edu.helper.ProjectSupport
 import org.openurp.edu.room.model.{AvailableTime, CycleDate}
+
+import scala.reflect.internal.util.Collections
 
 class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSupport {
 
@@ -45,8 +47,64 @@ class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSuppo
 		super.editSetting(entity)
 	}
 
+	def batchAdd(): View = {
+		forward()
+	}
+
 
 	def saveTime(): View = {
+		getLong("availableTime.id").foreach(availableTimeId => {
+			val availableTimeNow = entityDao.get(classOf[AvailableTime], availableTimeId)
+			entityDao.remove(availableTimeNow)
+		})
+		val times = getTimes()
+		val room = entityDao.findBy(classOf[Classroom], "code", get("availableTime.room")).head
+		if (times.isEmpty) {
+			redirect("search", "info.save.failure")
+		} else {
+			times.foreach(time => {
+				val builder = OqlBuilder.from(classOf[AvailableTime], "at")
+				builder.where("at.room=:room", room)
+				builder.where("at.time=:time", time)
+				val availableTimes = entityDao.search(builder)
+				val availableTime = if (availableTimes.isEmpty) new AvailableTime else availableTimes.head
+				availableTime.time = time
+				availableTime.updatedAt = Instant.now()
+				availableTime.room = room
+				availableTime.project = getProject
+				saveOrUpdate(availableTime)
+			})
+			redirect("search", "info.save.success")
+		}
+	}
+
+	def batchSave(): View = {
+		val times = getTimes()
+		get("availableTime.room").orNull match {
+			case null => redirect("search", "info.save.failure")
+			case roomStr => {
+				val roomStrSeq = roomStr.trim.split(",")
+				val rooms = entityDao.findBy(classOf[Classroom], "code", roomStrSeq)
+				if (rooms.isEmpty) {
+					redirect("search", "info.save.failure")
+				} else {
+					rooms.foreach(room => {
+						times.foreach(time => {
+							val availableTime = new AvailableTime
+							availableTime.time = time
+							availableTime.updatedAt = Instant.now()
+							availableTime.room = room
+							availableTime.project = getProject
+							saveOrUpdate(availableTime)
+						})
+					})
+					redirect("search", "info.save.success")
+				}
+			}
+		}
+	}
+
+	def getTimes(): Array[WeekTime] = {
 		val cycleDate = new CycleDate
 		getInt("cycleTime.cycleCount").foreach(cycleCount => {
 			cycleDate.cycleCount = cycleCount
@@ -66,26 +124,9 @@ class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSuppo
 		get("endAt").foreach(endAtContent => {
 			cycleDate.endAt = HourMinute.apply(endAtContent)
 		})
-		val times = cycleDate.convert
-		val room = entityDao.get(classOf[Classroom], longId("availableTime.room"))
-		if (times.isEmpty) {
-			redirect("search", "info.save.failure")
-		} else {
-			times.foreach(time => {
-				val builder = OqlBuilder.from(classOf[AvailableTime], "at")
-				builder.where("at.room=:room", room)
-				builder.where("at.time=:time", time)
-				val availableTimes = entityDao.search(builder)
-				val availableTime = if (availableTimes.isEmpty) new AvailableTime else availableTimes.head
-				availableTime.time = time
-				availableTime.updatedAt = Instant.now()
-				availableTime.room = room
-				availableTime.project = getProject
-				saveOrUpdate(availableTime)
-			})
-			redirect("search", "info.save.success")
-		}
+		cycleDate.convert
 	}
+
 
 	def roomAjax(): View = {
 		val query = OqlBuilder.from(classOf[Classroom], "cr")
