@@ -20,6 +20,7 @@ package org.openurp.edu.room.web.action
 
 import java.time.Instant
 
+import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.view.View
@@ -83,7 +84,13 @@ class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSuppo
 		get("availableTime.room").orNull match {
 			case null => redirect("search", "info.save.failure")
 			case roomStr => {
-				val roomStrSeq = roomStr.trim.split(",")
+				val newRoomStr = roomStr.replaceAll("\n", ",")
+					.replaceAll("\r\n", ",")
+					.replaceAll("\r", ",")
+					.replaceAll("\t", ",")
+					.replaceAll("，", ",")
+					.replaceAll(" ", ",")
+				val roomStrSeq = Strings.split(newRoomStr, ",")
 				val rooms = entityDao.findBy(classOf[Classroom], "code", roomStrSeq)
 				if (rooms.isEmpty) {
 					redirect("search", "info.save.failure")

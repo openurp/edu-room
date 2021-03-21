@@ -7,10 +7,6 @@ ${b.script("my97","WdatePicker.js")}
     [@b.form action="!batchSave" theme="list" onsubmit="validTime"]
 			<table class="formTable" align="center" width="100%">
 				<tr>
-					<td class="title" align="right" width="15%"><font color="red">*</font>教室代码：</td>
-					<td width="35%">
-              <input name="availableTime.room" type="text" style="width:400px" title="教室代码"/>(多个教室代码使用,隔开)
-					</td>
 					<td class="title" id="f_cycleCount" align="right" width="15%"><font color="red">*</font>时间周期：</td>
 					<td width="35%">每&nbsp;<input type="text" title="时间周期" name="cycleTime.cycleCount" style="width:20px" value="1"
 														maxlength="2"/>
@@ -18,6 +14,8 @@ ${b.script("my97","WdatePicker.js")}
 							<option value="1">天</option>
 							<option value="2">周</option>
 						</select>
+					</td>
+					<td colspan="2">
 					</td>
 				</tr>
 				<tr>
@@ -35,6 +33,12 @@ ${b.script("my97","WdatePicker.js")}
 					<td><input type="text" title="起始时间" id="beginAt" name="beginAt" style='width:50px' value="00:00" format="Time"
 										 maxlength="5"/> - <input type="text" title="结束时间" name="endAt" id="endAt" value="00:00"
 																							style='width:50px' maxlength="5"/> (时:分)&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp
+					</td>
+				</tr>
+				<tr>
+					<td class="title" align="right" width="15%"><font color="red">*</font>教室代码：</td>
+					<td colspan="3">
+						<textarea name="availableTime.room"  rows="8" cols="100" title="教室代码"></textarea>(多个教室代码使用,隔开)
 					</td>
 				</tr>
 			</table>
@@ -58,7 +62,7 @@ ${b.script("my97","WdatePicker.js")}
 		var endDate = parseInt(endOn.substr(8, 2), 10);
 		var date2 = new Date(endYear, endMonth - 1, endDate);
 		var tmp;
-		jQuery("input[name='availableTime.room']").require().match('notBlank')
+		jQuery("textarea[name='availableTime.room']").require().match('notBlank')
 		if (form["cycleTime.cycleType"].value == "2") {
 			tmp = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate() + (7 * cycleCount));
 		} else if (form["cycleTime.cycleType"].value == "1") {

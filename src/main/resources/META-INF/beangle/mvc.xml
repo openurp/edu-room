@@ -9,5 +9,6 @@
   </profile>
   <static>
     <bundle name="urp" version="default"/>
+    <bundle name="fullcalendar" version="5.0.1"/>
   </static>
 </mvc>

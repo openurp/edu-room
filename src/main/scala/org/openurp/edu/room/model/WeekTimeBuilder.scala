@@ -20,9 +20,10 @@ package org.openurp.edu.room.model
 
 import java.time.LocalDate
 
+import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 
-object WeekTimeBuilder{
+object WeekTimeBuilder {
 	/**
 	 * 构造某个日期（beginAt, endAt必须是同一天，只是时间不同）的WeekTime
 	 *
@@ -36,26 +37,43 @@ object WeekTimeBuilder{
 		time.endAt = endAt
 		time
 	}
+
+	def build(beginOn: LocalDate, endOn: LocalDate): Seq[WeekTime] = {
+		val timeMap = Collections.newMap[LocalDate, WeekTime]
+		var newBeginOn = beginOn
+		while (!newBeginOn.isAfter(endOn)) {
+			val t = WeekTime.of(beginOn)
+			val existed = timeMap.get(t.startOn)
+			timeMap.get(t.startOn) match {
+				case Some(existed) => existed.weekstate = existed.weekstate | t.weekstate
+				case None => timeMap.put(t.startOn, t)
+			}
+			newBeginOn = newBeginOn.plusYears(1)
+		}
+		val times = timeMap.values.toSeq.sortBy(x => x.startOn)
+		times
+	}
+
 }
 
 class WeekTimeBuilder {
-//	private var startOn: LocalDate = _
-//
-//	private var firstWeekEndOn: LocalDate = _
+	//	private var startOn: LocalDate = _
+	//
+	//	private var firstWeekEndOn: LocalDate = _
 
 
-//	def this(startOn: LocalDate, firstDay: WeekDay) {
-//		this()
-//		this.startOn = startOn
-//		var endOn: LocalDate = startOn
-//		val weekendDay: WeekDay = firstDay.previous
-//		while ( {
-//			endOn.getDayOfWeek.getValue != weekendDay.getId
-//		}) {
-//			endOn = endOn.plusDays(1)
-//		}
-//		firstWeekEndOn = endOn
-//	}
+	//	def this(startOn: LocalDate, firstDay: WeekDay) {
+	//		this()
+	//		this.startOn = startOn
+	//		var endOn: LocalDate = startOn
+	//		val weekendDay: WeekDay = firstDay.previous
+	//		while ( {
+	//			endOn.getDayOfWeek.getValue != weekendDay.getId
+	//		}) {
+	//			endOn = endOn.plusDays(1)
+	//		}
+	//		firstWeekEndOn = endOn
+	//	}
 
 	//	def on(semester: Semester): WeekTimeBuilder = {
 	//		return new WeekTimeBuilder(semester.getBeginOn.toLocalDate, semester.getCalendar.getFirstWeekday)
@@ -92,29 +110,7 @@ class WeekTimeBuilder {
 	//		return digest.replace("[", "").replace("]", "").replace("number.range.odd", "单").replace("number.range.even", "双")
 	//	}
 	//
-	//	def build(beginOn: Date, endOn: Date): List[WeekTime] = {
-	//		val timeMap: Map[Date, WeekTime] = CollectUtils.newHashMap
-	//		val c: Calendar = Calendar.getInstance
-	//		val e: Calendar = Calendar.getInstance
-	//		e.setTime(endOn)
-	//		c.setTime(beginOn)
-	//		while ( {
-	//			!(c.after(e))
-	//		}) {
-	//			val t: WeekTime = WeekTime.of(new Date(c.getTime.getTime))
-	//			val existed: WeekTime = timeMap.get(t.getStartOn)
-	//			if (null == existed) {
-	//				timeMap.put(t.getStartOn, t)
-	//			}
-	//			else {
-	//				existed.setWeekstate(existed.getWeekstate.bitor(t.getWeekstate))
-	//			}
-	//			c.add(Calendar.DAY_OF_YEAR, 1)
-	//		}
-	//		val times: List[WeekTime] = CollectUtils.newArrayList(timeMap.values)
-	//		Collections.sort(times, new PropertyComparator("startOn"))
-	//		return times
-	//	}
+
 	//
 	//	def buildOnOldWeekStr(weekday: WeekDay, weekstr: String): List[WeekTime] = {
 	//		val weekList: List[Integer] = new ArrayList[Integer]
@@ -245,8 +241,6 @@ class WeekTimeBuilder {
 	//		courseTime.setWeekstate(WeekState.of(range))
 	//		return courseTime
 	//	}
-
-
 
 
 	//	def getDateRange(semester: Semester, weekIndex: Int): Pair[Date, Date] = {
