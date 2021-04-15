@@ -19,11 +19,17 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.cdi.bind.BindModule
+import org.openurp.edu.room.service.RoomApplyService
+import org.openurp.edu.room.util.OccupancyUtils
 
 class DefaultModule extends BindModule {
 
   protected override def binding(): Unit = {
     bind(classOf[AvailableTimeAction])
     bind(classOf[OccupancyAction])
+    bind(classOf[RoomApplyAction])
+    bind(classOf[ApproveAction])
+    bind(classOf[OccupancyUtils])
+    bind(classOf[RoomApplyService])
   }
 }

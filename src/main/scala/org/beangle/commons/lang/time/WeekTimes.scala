@@ -18,6 +18,9 @@
  */
 package org.beangle.commons.lang.time
 
+import org.beangle.commons.collection.Collections
+
+import scala.collection.mutable
 
 
 object WeekTimes {
@@ -65,31 +68,29 @@ object WeekTimes {
 		}
 	}
 
-	//
-	//	/**
-	//	 * 合并相邻或者重叠的时间段<br>
-	//	 * 前提条件是待合并的
-	//	 *
-	//	 * @param tobeMerged
-	//	 * @return
-	//	 */
-	//	def mergeTimes(tobeMerged: util.List[WeekTime]): util.List[WeekTime] = {
-	//		if (tobeMerged.isEmpty) return tobeMerged
-	//		Collections.sort(tobeMerged)
-	//		val mergedTimeUnits = CollectUtils.newArrayList
-	//		val activityIter = tobeMerged.iterator
-	//		var toMerged = activityIter.next.asInstanceOf[WeekTime]
-	//		mergedTimeUnits.add(toMerged)
-	//		while ( {
-	//			activityIter.hasNext
-	//		}) {
-	//			val unit = activityIter.next.asInstanceOf[WeekTime]
-	//			if (canMergerWith(toMerged, unit)) mergeWith(toMerged, unit)
-	//			else {
-	//				toMerged = unit
-	//				mergedTimeUnits.add(toMerged)
-	//			}
-	//		}
-	//		mergedTimeUnits
-	//	}
+
+	/**
+	 * 合并相邻或者重叠的时间段<br>
+	 * 前提条件是待合并的
+	 *
+	 * @param tobeMerged
+	 * @return
+	 */
+	def mergeTimes(tobeMerged: mutable.Buffer[WeekTime]): mutable.Buffer[WeekTime] = {
+		if (tobeMerged.isEmpty) return tobeMerged
+		//			Collections.sort(tobeMerged)
+		val mergedTimeUnits = Collections.newBuffer[WeekTime]
+		val activityIter = tobeMerged.iterator
+		var toMerged = activityIter.next
+		mergedTimeUnits.+=(toMerged)
+		while (activityIter.hasNext) {
+			val unit = activityIter.next
+			if (canMergerWith(toMerged, unit)) mergeWith(toMerged, unit)
+			else {
+				toMerged = unit
+				mergedTimeUnits.+=(toMerged)
+			}
+		}
+		mergedTimeUnits
+	}
 }

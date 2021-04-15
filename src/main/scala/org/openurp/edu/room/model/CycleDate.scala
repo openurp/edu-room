@@ -18,11 +18,10 @@
  */
 package org.openurp.edu.room.model
 
-import java.time.LocalDate
-import java.util.{Calendar, Date}
-
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.openurp.edu.room.util.TimeUnitBuilder
+
+import java.time.LocalDate
 
 object CycleDate {
 	/** 天 */
@@ -53,12 +52,10 @@ class CycleDate extends Cloneable with Serializable {
 	}
 
 	def getCycleDays: Int = {
-		cycleType match {
-			case CycleDate.DAY => cycleCount
-			case CycleDate.MONTH => cycleCount * 30
-			case CycleDate.WEEK => cycleCount * 7
-		}
-		throw new RuntimeException("xxx")
+		if (cycleType == CycleDate.DAY) cycleCount
+		else if (cycleType == CycleDate.MONTH) cycleCount * 30
+		else if (cycleType == CycleDate.WEEK) cycleCount * 7
+		else throw new RuntimeException("xxx")
 	}
 
 	def convert: Array[WeekTime] = {
