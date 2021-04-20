@@ -10,9 +10,6 @@ import org.openurp.boot.edu.helper.ProjectSupport
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.model.RoomApply
 
-import java.util
-import java.util.List
-
 class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
 
 	override def indexSetting(): Unit = {

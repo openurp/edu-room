@@ -2,8 +2,12 @@
 [@b.head/]
 [@b.toolbar title="物管审核"]
   bar.addItem("代理借用","delegateApply()");
+  bar.addItem("快速借教室", "quickApply()");
   function delegateApply(){
   bg.form.submit(document.searchRoomApplyApproveForm,'${b.url("room-apply")}',"_blank");
+  }
+  function quickApply() {
+  bg.form.submit(document.searchRoomApplyApproveForm,'${b.url("quick-apply")}',"_blank");
   }
 [/@]
 <div class="search-container">

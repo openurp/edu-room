@@ -23,7 +23,7 @@
 			<td width="35%">${roomApply.applyBy.name} 填表申请时间：${roomApply.applyAt?string('yyyy-MM-dd HH:mm:ss')}</td>
 		</tr>
 		<tr>
-			<td class="title"><font color="red">*</font>&nbsp;口部门：</td>
+			<td class="title"><font color="red">*</font>&nbsp;归口部门：</td>
 			<td>${roomApply.borrower.department.name}</td>
 			<td class="title" align="right">&nbsp;联系方式：</td>
 			<td>${(roomApply.borrower.mobile)!}</td>

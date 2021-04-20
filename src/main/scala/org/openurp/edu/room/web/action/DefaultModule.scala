@@ -31,5 +31,6 @@ class DefaultModule extends BindModule {
     bind(classOf[ApproveAction])
     bind(classOf[OccupancyUtils])
     bind(classOf[RoomApplyService])
+    bind(classOf[QuickApplyAction])
   }
 }

@@ -19,10 +19,11 @@
 package org.openurp.edu.room.util
 
 import java.time.LocalDate
-
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.time.{HourMinute, WeekTime, WeekTimes}
 import org.openurp.edu.room.model.{CycleDate, WeekTimeBuilder}
+
+import scala.collection.mutable
 
 class TimeUnitBuilder {
 
@@ -38,7 +39,7 @@ class TimeUnitBuilder {
 		this.endAt = endAt
 	}
 
-	def build: Array[WeekTime] = times.toArray
+	def build: mutable.Buffer[WeekTime] = times
 
 	/**
 	 * 在TimeUnitBuilder里添加一个日期

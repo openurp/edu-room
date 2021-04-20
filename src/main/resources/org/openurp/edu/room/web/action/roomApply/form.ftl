@@ -25,7 +25,7 @@
         	<td class="title"><font color="red">*</font>&nbsp;归口部门：</td>
         	<td>[@b.select empty="..." items=departments?sort_by("name") name="roomApply.borrower.department.id" value=(roomApply.borrower.department)! label=""/]</td>
         	<td class="title" align="right" id="f_mobile"><font color="red">*</font>&nbsp;联系方式：</td>
-			<td><input type="text" name="roomApply.borrower.mobile" size="15" maxlength="20" value="${(roomApply.borrower.mobile)!}"/></td>
+			<td><input type="text" name="roomApply.borrower.mobile" size="15" maxlength="20" value="${(roomApply.borrower.mobile)!}" title="联系方式" /></td>
         </tr>
         <tr>
         	<td class="title" id="f_activityType" >借用用途：</td>
@@ -155,9 +155,9 @@
    	jQuery("input[name='roomApply.borrower.applicant']").require().match('notBlank');
 			jQuery("input[name='roomApply.borrower.mobile']").require().match('notBlank');
    	jQuery("select[name='roomApply.campus.id']").require();
-   	jQuery("select[name='roomApply.auditDepart.id']").require();
+   	jQuery("select[name='roomApply.borrower.department.id']").require();
    	// jQuery("input[name='roomApply.activity.name']").require().match('notBlank');
-   	jQuery("input[name='roomApply.activity.attendance']").require().match('notBlank').match('integer');
+   	jQuery("input[name='roomApply.activity.attendanceNum']").require().match('notBlank').match('integer');
 		if(jQuery.validity.end().valid) {
 			$("#weekState").val(strWeek);
 		 	$("#classUnit").val(strUnit);

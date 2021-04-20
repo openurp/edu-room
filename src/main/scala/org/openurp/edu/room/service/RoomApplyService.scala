@@ -24,8 +24,8 @@ class RoomApplyService extends RestfulAction[RoomApply] with ProjectSupport {
 		val exitOccupancies = entityDao.findBy(classOf[Occupancy], "room", rooms)
 		entityDao.remove(exitOccupancies)
 		roomApply.rooms.clear()
-
 		roomApply.approved = Option(!rooms.isEmpty)
+		saveOrUpdate(roomApply)
 		val finalCheck = roomApply.finalCheck match {
 			case Some(value) => value
 			case None => new ApplyFinalCheck
@@ -36,7 +36,6 @@ class RoomApplyService extends RestfulAction[RoomApply] with ProjectSupport {
 		finalCheck.checkedBy = approveBy
 		saveOrUpdate(finalCheck)
 		roomApply.finalCheck = Option(finalCheck)
-		// 教研活动
 		val units = roomApply.time.times
 		val freerooms = entityDao.search(occupancyUtils.buildFreeroomQuery(units))
 		val newRooms = Collections.newSet[Classroom]

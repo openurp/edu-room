@@ -22,6 +22,7 @@ import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.openurp.edu.room.util.TimeUnitBuilder
 
 import java.time.LocalDate
+import scala.collection.mutable
 
 object CycleDate {
 	/** 天 */
@@ -58,7 +59,7 @@ class CycleDate extends Cloneable with Serializable {
 		else throw new RuntimeException("xxx")
 	}
 
-	def convert: Array[WeekTime] = {
+	def convert: mutable.Buffer[WeekTime] = {
 		val builder = new TimeUnitBuilder(beginAt, endAt)
 		builder.addRange(beginOn, endOn, cycleType, cycleCount)
 		builder.build

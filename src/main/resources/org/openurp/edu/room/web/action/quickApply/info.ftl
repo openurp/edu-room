@@ -1,7 +1,6 @@
 [#ftl]
 [@b.head/]
 [@b.toolbar title="教室借用信息"]
-	bar.addBack();
 [/@]
     <table class="infoTable" align="center" width="100%">
 			<tr>

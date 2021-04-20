@@ -16,14 +16,14 @@
 		[#assign dateBegin=(roomApply.time.beginOn)! /]
 		[#assign dateEnd=(roomApply.time.endOn)! /]
 		[/#if]
-		[@b.col title="借用时间" width="20%"]<span title="[#if dateBegin=dateEnd]${dateEnd}[#else]${dateBegin}~${dateEnd}[/#if]">${(roomApply.time)!}</span>[[/@]
+		[@b.col title="借用时间" width="20%"]<span title="[#if dateBegin=dateEnd]${dateEnd}[#else]${dateBegin}~${dateEnd}[/#if]">${(roomApply.time)!}</span>[/@]
 		[@b.col title="使用教室" width="20%"]
 			[#if roomApply.rooms?? && roomApply.rooms?size>0]
 			[#list roomApply.rooms?if_exists as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
 			[#else]
 			<font color="red">
 			[#if roomApply.isApproved??]${roomApply.isApproved?string('审核通过','审核不通过')}
-			[#else]尚未审核[/#if]
+			[#else]待审核[/#if]
 			</font>
 			[/#if]
 		[/@]

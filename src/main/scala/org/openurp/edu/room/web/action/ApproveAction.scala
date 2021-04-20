@@ -125,6 +125,7 @@ class ApproveAction extends DepartApproveAction {
 		if (roomApplies.isEmpty) error("error.parameters.needed")
 		roomApplies.foreach(roomApply => {
 			roomApply.rooms.clear()
+			saveOrUpdate(roomApply)
 			val finalCheck = roomApply.finalCheck match {
 				case Some(value) => value
 				case None => new ApplyFinalCheck

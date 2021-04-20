@@ -19,7 +19,6 @@
 package org.openurp.edu.room.web.action
 
 import java.time.Instant
-
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
@@ -30,6 +29,7 @@ import org.openurp.base.model.Campus
 import org.openurp.boot.edu.helper.ProjectSupport
 import org.openurp.edu.room.model.{AvailableTime, CycleDate}
 
+import scala.collection.mutable
 import scala.reflect.internal.util.Collections
 
 class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSupport {
@@ -111,7 +111,7 @@ class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSuppo
 		}
 	}
 
-	def getTimes(): Array[WeekTime] = {
+	def getTimes(): mutable.Buffer[WeekTime] = {
 		val cycleDate = new CycleDate
 		getInt("cycleTime.cycleCount").foreach(cycleCount => {
 			cycleDate.cycleCount = cycleCount

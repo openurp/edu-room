@@ -6,6 +6,7 @@ import org.beangle.commons.lang.time.WeekDay.WeekDay
 import org.beangle.commons.lang.time.{WeekDay, WeekTime, WeekTimes}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.security.Securities
+import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.edu.model.{CourseUnit, Semester, TimeSetting}
@@ -166,31 +167,55 @@ class RoomApplyAction extends RestfulAction[RoomApply] with ProjectSupport {
 
 	def apply: View = {
 		val roomApply = buildApply()
-		if (roomApply.time.beginOn != null) {
-			val now = LocalDate.now
-			val applyOn = roomApply.time.beginOn
-			val days = applyOn.toEpochDay - now.toEpochDay
-			if (days < 2) {
-				return redirect("search", "请至少提前两天申请教室!")
+		val days = roomApply.time.beginOn.toEpochDay - LocalDate.now.toEpochDay
+		if (days < 2) {
+			redirect("search", "请至少提前两天申请教室!")
+		} else {
+			try {
+				saveOrUpdate(roomApply)
+				val departCheck = roomApply.departCheck match {
+					case Some(value) => value
+					case None => new ApplyDepartCheck
+				}
+				departCheck.apply = roomApply
+				departCheck.approved = true
+				departCheck.checkedAt = Instant.now()
+				departCheck.checkedBy = getUser
+				saveOrUpdate(departCheck)
+				roomApply.departCheck = Option(departCheck)
+				saveOrUpdate(roomApply)
+				redirect("search", "info.save.success")
+			}
+			catch {
+				case e: Exception =>
+					logger.info("saveAndForwad failure", e)
+					redirect("search", "info.save.failure")
 			}
 		}
-		val departCheck = roomApply.departCheck match {
-			case Some(value) => value
-			case None => new ApplyDepartCheck
-		}
-		departCheck.apply = roomApply
-		departCheck.approved = true
-		departCheck.checkedAt = Instant.now()
-		departCheck.checkedBy = getUser
-		saveOrUpdate(departCheck)
-		roomApply.departCheck = Option(departCheck)
-		try saveOrUpdate(roomApply)
-		catch {
-			case e: Exception =>
-				logger.info("saveAndForwad failure", e)
-				return redirect("search", "info.save.failure")
-		}
-		redirect("search", "info.save.success")
 	}
+
+	//	@mapping(method = "delete")
+	//	override def remove(): View = {
+	//		val idclass = entityDao.domain.getEntity(entityName).get.id.clazz
+	//		val entities: Seq[RoomApply] = getId(simpleEntityName, idclass) match {
+	//			case Some(entityId) => List(getModel[RoomApply](entityName, entityId))
+	//			case None => getModels[RoomApply](entityName, ids(simpleEntityName, idclass))
+	//		}
+	//		try {
+	//			entities.foreach(entity => {
+	//				entity.departCheck.foreach(departCheck => {
+	//					remove(departCheck)
+	//				})
+	//				entity.finalCheck.foreach(finalCheck => {
+	//					remove(finalCheck)
+	//				})
+	//			})
+	//			removeAndRedirect(entities)
+	//		} catch {
+	//			case e: Exception =>
+	//				logger.info("removeAndRedirect failure", e)
+	//				redirect("search", "info.delete.failure")
+	//		}
+	//	}
 
 }
