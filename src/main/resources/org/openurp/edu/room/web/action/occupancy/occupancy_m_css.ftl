@@ -24,23 +24,23 @@
     background-color: ${color};
     border-color: ${color};
   }
-  
+
   .event-${color}-trans {
     background-color: rgba(${colorTrans[color_index]}, 0.5);
     border-color: rgba(${colorTrans[color_index]}, 0.5);
   }
-  
+
   .event-${color}-deep {
     color: rgb(${colorDeeps[color_index]});
   }
   [/#list]
-  
+
   body {
     margin-left: 10px;
     margin-right: 10px;
     overflow: hidden;
   }
-  
+
   table.legend {
     font-size: 15px;
     table-layout: fixed;
@@ -48,73 +48,73 @@
     border-style: double;
     border-color: blue;
   }
-  
+
   table.legend td {
     width: 10px;
     vertical-align: top;
   }
-  
+
   #detail {
     background-color: WhiteSmoke;
     margin-top: 10px;
     padding: 10px;
     overflow-y: hidden;
   }
-  
+
   #detail .detail-root {
     font-size: 12pt;
   }
-  
+
   #detail .detail-root .detail-root-content {
     font-weight: bold;
-  } 
-  
+  }
+
   #detail .detail-root .detail-root-content.detail-root-content-today {
     color: red;
   }
-  
+
   #detail .detail-body {
     margin-top: 10px;
     height: 80%;
     overflow-y: auto;
   }
-  
+
   #detail .detail-body .occupancy {
     margin-bottom: 10px;
   }
-  
+
   #detail .detail-body .occupancy .title {
     font-weight: bold;
     height: 20px;
     padding-top: 5px;
   }
-  
+
   #detail .detail-body .occupancy .title .title-value {
     padding-right: 5px;
     font-weight: bold;
   }
-  
+
   #detail .detail-body .occupancy .title .time {
     font-weight: bold;
     background-color: white;
     padding-left: 2px;
     padding-right: 2px;
   }
-  
+
   #detail .detail-body .occupancy .content {
     filter:alpha(opacity=80);
     -moz-opacity:0.8;
   }
-  
+
   #detail .detail-body .occupancy .content .msg {
   }
-  
+
   .fc-select-day {
     border-width: 1px;
     border-style: solid;
     border-color: red;
   }
-  
+
   .fc-center {
     text-align: center;
   }

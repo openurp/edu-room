@@ -40,12 +40,12 @@ ${b.script("my97","WdatePicker.js")}
                 [/#if]
             </td>
         </tr>
-        	<input type="hidden" name="cycleTime.cycleCount" value="${cycleCount!}"/>
-        	<input type="hidden" name="cycleTime.cycleType" value="${cycleType!}"/>
-        	<input type="hidden" name="cycleTime.beginOn" value="${beginOn!}"/>
-        	<input type="hidden" name="cycleTime.endOn" value="${endOn!}"/>
-        	<input type="hidden" name="timeBegin" value="${timeBegin!}"/>
-        	<input type="hidden" name="timeEnd" value="${timeEnd!}"/>
+          <input type="hidden" name="cycleTime.cycleCount" value="${cycleCount!}"/>
+          <input type="hidden" name="cycleTime.cycleType" value="${cycleType!}"/>
+          <input type="hidden" name="cycleTime.beginOn" value="${beginOn!}"/>
+          <input type="hidden" name="cycleTime.endOn" value="${endOn!}"/>
+          <input type="hidden" name="timeBegin" value="${timeBegin!}"/>
+          <input type="hidden" name="timeEnd" value="${timeEnd!}"/>
         <tr >
             <td class="title" align="center" rowspan="3" style="text-align:center">借用时间要求</td>
             <td class="title" id="f_cycleCount" align="right">时间周期：</td>
@@ -62,7 +62,7 @@ ${b.script("my97","WdatePicker.js")}
         <tr>
             <td class="title" id="f_beginTime_endTime" align="right">&nbsp;教室使用时间：</td>
             <td colspan="3">${timeBegin!}-${timeEnd!}
-						</td>
+            </td>
         </tr>
         <tr class="thead">
             <td colspan="5" align="center">

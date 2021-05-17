@@ -2,5 +2,6 @@
 <cdi>
   <container name="web">
     <module class="org.openurp.edu.room.web.action.DefaultModule"/>
+    <module class="org.openurp.starter.edu.action.ProjectModule"/>
   </container>
 </cdi>

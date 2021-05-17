@@ -18,7 +18,6 @@
  */
 package org.openurp.edu.room.web.action
 
-import java.time.Instant
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
@@ -26,125 +25,125 @@ import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.Campus
-import org.openurp.boot.edu.helper.ProjectSupport
-import org.openurp.edu.room.model.{AvailableTime, CycleDate}
+import org.openurp.edu.room.model.{CycleTime, RoomAvailableTime}
+import org.openurp.starter.edu.helper.ProjectSupport
 
+import java.time.Instant
 import scala.collection.mutable
-import scala.reflect.internal.util.Collections
 
-class AvailableTimeAction extends RestfulAction[AvailableTime] with ProjectSupport {
+class AvailableTimeAction extends RestfulAction[RoomAvailableTime] with ProjectSupport {
 
+  override def indexSetting(): Unit = {
+    put("campuses", findInSchool(classOf[Campus]))
+    super.indexSetting()
+  }
 
-	override def indexSetting(): Unit = {
-		put("campuses", findInSchool(classOf[Campus]))
-		super.indexSetting()
-	}
+  override def editSetting(entity: RoomAvailableTime): Unit = {
+    val builder = OqlBuilder.from(classOf[Classroom], "cr")
+    builder.where("exists(from cr.projects as project where project=:project)", getProject)
+    put("rooms", entityDao.search(builder))
+    super.editSetting(entity)
+  }
 
+  def batchAdd(): View = {
+    forward()
+  }
 
-	override def editSetting(entity: AvailableTime): Unit = {
-		val builder = OqlBuilder.from(classOf[Classroom], "cr")
-		builder.where("exists(from cr.projects as project where project=:project)", getProject)
-		put("rooms", entityDao.search(builder))
-		super.editSetting(entity)
-	}
+  def saveTime(): View = {
+    getLong("availableTime.id").foreach(availableTimeId => {
+      val availableTimeNow = entityDao.get(classOf[RoomAvailableTime], availableTimeId)
+      entityDao.remove(availableTimeNow)
+    })
+    val times = getTimes()
+    val room = entityDao.findBy(classOf[Classroom], "code", get("availableTime.room")).head
+    if (times.isEmpty) {
+      redirect("search", "info.save.failure")
+    } else {
+      times.foreach(time => {
+        val builder = OqlBuilder.from(classOf[RoomAvailableTime], "at")
+        builder.where("at.room=:room", room)
+        builder.where("at.time=:time", time)
+        val availableTimes = entityDao.search(builder)
+        val availableTime = if (availableTimes.isEmpty) new RoomAvailableTime else availableTimes.head
+        availableTime.time = time
+        availableTime.updatedAt = Instant.now()
+        availableTime.room = room
+        availableTime.project = getProject
+        saveOrUpdate(availableTime)
+      })
+      redirect("search", "info.save.success")
+    }
+  }
 
-	def batchAdd(): View = {
-		forward()
-	}
+  def batchSave(): View = {
+    val times = getTimes()
+    get("availableTime.room").orNull match {
+      case null => redirect("search", "info.save.failure")
+      case roomStr => {
+        val newRoomStr = roomStr.replaceAll("\n", ",")
+          .replaceAll("\r\n", ",")
+          .replaceAll("\r", ",")
+          .replaceAll("\t", ",")
+          .replaceAll("，", ",")
+          .replaceAll(" ", ",")
+        val roomStrSeq = Strings.split(newRoomStr, ",")
+        val rooms = entityDao.findBy(classOf[Classroom], "code", roomStrSeq)
+        if (rooms.isEmpty) {
+          redirect("search", "info.save.failure")
+        } else {
+          rooms.foreach(room => {
+            times.foreach(time => {
+              val availableTime = new RoomAvailableTime
+              availableTime.time = time
+              availableTime.updatedAt = Instant.now()
+              availableTime.room = room
+              availableTime.project = getProject
+              saveOrUpdate(availableTime)
+            })
+          })
+          redirect("search", "info.save.success")
+        }
+      }
+    }
+  }
 
+  def getTimes(): mutable.Buffer[WeekTime] = {
+    val cycleDate = new CycleTime
+    getInt("cycleTime.cycleCount").foreach(cycleCount => {
+      cycleDate.cycleCount = cycleCount
+    })
+    getInt("cycleTime.cycleType").foreach(cycleType => {
+      cycleDate.cycleType = cycleType
+    })
+    getDate("cycleTime.beginOn").foreach(dateBegin => {
+      cycleDate.beginOn = dateBegin
+    })
+    getDate("cycleTime.endOn").foreach(dateEnd => {
+      cycleDate.endOn = dateEnd
+    })
+    get("beginAt").foreach(beginAtContent => {
+      cycleDate.beginAt = HourMinute.apply(beginAtContent)
+    })
+    get("endAt").foreach(endAtContent => {
+      cycleDate.endAt = HourMinute.apply(endAtContent)
+    })
+    cycleDate.convert
+  }
 
-	def saveTime(): View = {
-		getLong("availableTime.id").foreach(availableTimeId => {
-			val availableTimeNow = entityDao.get(classOf[AvailableTime], availableTimeId)
-			entityDao.remove(availableTimeNow)
-		})
-		val times = getTimes()
-		val room = entityDao.findBy(classOf[Classroom], "code", get("availableTime.room")).head
-		if (times.isEmpty) {
-			redirect("search", "info.save.failure")
-		} else {
-			times.foreach(time => {
-				val builder = OqlBuilder.from(classOf[AvailableTime], "at")
-				builder.where("at.room=:room", room)
-				builder.where("at.time=:time", time)
-				val availableTimes = entityDao.search(builder)
-				val availableTime = if (availableTimes.isEmpty) new AvailableTime else availableTimes.head
-				availableTime.time = time
-				availableTime.updatedAt = Instant.now()
-				availableTime.room = room
-				availableTime.project = getProject
-				saveOrUpdate(availableTime)
-			})
-			redirect("search", "info.save.success")
-		}
-	}
+  def roomAjax(): View = {
+    val query = OqlBuilder.from(classOf[Classroom], "cr")
+    query.orderBy("cr.code")
+    query.where("exists(from cr.projects as project where project=:project)", getProject)
+    populateConditions(query)
+    get("term").foreach(codeOrName => {
+      query.where("(cr.name like :name )", s"%$codeOrName%")
+    })
+    query.limit(getPageLimit)
+    put("rooms", entityDao.search(query))
+    forward("roomsJSON")
+  }
 
-	def batchSave(): View = {
-		val times = getTimes()
-		get("availableTime.room").orNull match {
-			case null => redirect("search", "info.save.failure")
-			case roomStr => {
-				val newRoomStr = roomStr.replaceAll("\n", ",")
-					.replaceAll("\r\n", ",")
-					.replaceAll("\r", ",")
-					.replaceAll("\t", ",")
-					.replaceAll("，", ",")
-					.replaceAll(" ", ",")
-				val roomStrSeq = Strings.split(newRoomStr, ",")
-				val rooms = entityDao.findBy(classOf[Classroom], "code", roomStrSeq)
-				if (rooms.isEmpty) {
-					redirect("search", "info.save.failure")
-				} else {
-					rooms.foreach(room => {
-						times.foreach(time => {
-							val availableTime = new AvailableTime
-							availableTime.time = time
-							availableTime.updatedAt = Instant.now()
-							availableTime.room = room
-							availableTime.project = getProject
-							saveOrUpdate(availableTime)
-						})
-					})
-					redirect("search", "info.save.success")
-				}
-			}
-		}
-	}
-
-	def getTimes(): mutable.Buffer[WeekTime] = {
-		val cycleDate = new CycleDate
-		getInt("cycleTime.cycleCount").foreach(cycleCount => {
-			cycleDate.cycleCount = cycleCount
-		})
-		getInt("cycleTime.cycleType").foreach(cycleType => {
-			cycleDate.cycleType = cycleType
-		})
-		getDate("cycleTime.beginOn").foreach(dateBegin => {
-			cycleDate.beginOn = dateBegin
-		})
-		getDate("cycleTime.endOn").foreach(dateEnd => {
-			cycleDate.endOn = dateEnd
-		})
-		get("beginAt").foreach(beginAtContent => {
-			cycleDate.beginAt = HourMinute.apply(beginAtContent)
-		})
-		get("endAt").foreach(endAtContent => {
-			cycleDate.endAt = HourMinute.apply(endAtContent)
-		})
-		cycleDate.convert
-	}
-
-
-	def roomAjax(): View = {
-		val query = OqlBuilder.from(classOf[Classroom], "cr")
-		query.orderBy("cr.code")
-		query.where("exists(from cr.projects as project where project=:project)", getProject)
-		populateConditions(query)
-		get("term").foreach(codeOrName => {
-			query.where("(cr.name like :name )", s"%$codeOrName%")
-		})
-		query.limit(getPageLimit)
-		put("rooms", entityDao.search(query))
-		forward("roomsJSON")
-	}
+  override protected def simpleEntityName: String = {
+    "availableTime"
+  }
 }
