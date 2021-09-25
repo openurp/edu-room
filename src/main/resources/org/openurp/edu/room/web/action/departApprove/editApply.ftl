@@ -204,7 +204,6 @@ bar.addBack();
           return;
               }
 
-
             bg.form.submit(form);
         }
     }
