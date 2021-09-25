@@ -5,9 +5,10 @@
     <div class="card-header row">
       <div class="col-3"><strong>${room.name} 房间占用情况</strong></div>
       <div class="col-9" style="font-size: 15px;text-align: right;">
-        [#list activityTypes?sort_by("code") as activityType]
+        [#assign sortedActivityTypes=  activityTypes?sort_by("code")/]
+        [#list sortedActivityTypes?sort_by("code") as activityType]
           <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 18px">&nbsp;</span>
-          <span[#if activityType_has_next] style="padding-right: 10px"[/#if]>${activityType.name} ${activityType.code}</span>
+          <span[#if activityType_has_next] style="padding-right: 10px"[/#if]>${activityType.name}</span>
         [/#list]
       </div>
     </div>
@@ -66,7 +67,7 @@
         document.title = roomName + "房间占用情况查看";
 
         var colorMap = {};
-        [#list activityTypes as activityType]
+        [#list sortedActivityTypes as activityType]
         colorMap["${activityType.id}"] =  "${colors[activityType_index + 1]!colors[0]}";
         [/#list]
 
