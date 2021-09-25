@@ -10,8 +10,8 @@
           "id": "${occupancy.activityType.id}",
           "name": "${occupancy.activityType.name}"
        },
-      "dateSpan": "重复${occupancy.time.weekstate.weeks?size}次 ${occupancy.time.firstDay?string('yyyy-MM-dd')}~${occupancy.time.lastDay?string('MM-dd')}",
-      "weeks": ${occupancy.time.weekstate.weeks?size}
+      "dateSpan": "${occupancy.time.firstDay?string('yyyy-MM-dd')}~${occupancy.time.lastDay?string('MM-dd')}(${occupancy.time.weekstate.weeks?size}次)",
+      "weeks": ${occupancy.time.weekstate.size}
     }
   }[#if date_has_next || occupancy_has_next],[/#if]
   [/#list]

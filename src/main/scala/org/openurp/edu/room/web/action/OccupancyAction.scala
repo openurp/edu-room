@@ -20,26 +20,53 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{Condition, OqlBuilder}
+import org.beangle.webmvc.api.action.ActionSupport
+import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
-import org.beangle.webmvc.entity.action.RestfulAction
+import org.beangle.webmvc.entity.action.EntityAction
 import org.openurp.base.edu.model.Classroom
+import org.openurp.base.model.Building
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.room.model.{Occupancy, WeekTimeBuilder}
 import org.openurp.starter.edu.helper.ProjectSupport
 
 import java.time.LocalDate
 
-class OccupancyAction extends RestfulAction[Classroom] with ProjectSupport {
+class OccupancyAction extends ActionSupport with EntityAction[Classroom] with ProjectSupport {
 
-  def calendar(): View = {
-    put("now",LocalDate.of(2020,5,10))
-    put("activityTypes", getCodes(classOf[ActivityType]))
-    put("room", entityDao.get(classOf[Classroom], longId("classroom")))
+  def index(): View = {
+    val project = getProject
+    val builder = OqlBuilder.from(classOf[Classroom].getName, "c")
+    builder.where("c.school=:school", project.school)
+    builder.groupBy("c.campus.code,c.campus.name,c.building.id,c.building.code,c.building.name")
+    builder.select("c.campus.name,c.building.id,c.building.name,count(*)")
+    builder.where("c.endOn is null or c.endOn>:now", LocalDate.now)
+    builder.orderBy("c.campus.code,c.building.code")
+    val buildings = entityDao.search(builder)
+    put("buildings", buildings)
     forward()
   }
 
-  def calendar_m(): View = {
-    put("now", LocalDate.now())
+  @mapping("{id}")
+  def building(id: String): View = {
+    val builder = OqlBuilder.from(classOf[Classroom], "c")
+    val buildingId = id.toInt
+    if (buildingId > 0) {
+      put("building", entityDao.get(classOf[Building], buildingId))
+      builder.where("c.building.id=:building_id", buildingId)
+    } else {
+      builder.where("c.building is null")
+    }
+    val project = getProject
+    builder.where("c.school=:school", project.school)
+    builder.where(":project in elements(c.projects)", project)
+    builder.orderBy("c.code")
+    builder.where("c.endOn is null or c.endOn>:now", LocalDate.now)
+    put("classrooms", entityDao.search(builder))
+    forward()
+  }
+
+  def calendar(): View = {
     put("activityTypes", getCodes(classOf[ActivityType]))
     put("room", entityDao.get(classOf[Classroom], longId("classroom")))
     forward()
@@ -65,12 +92,9 @@ class OccupancyAction extends RestfulAction[Classroom] with ProjectSupport {
       con.params(params)
       query.where(con)
     }
-    val occupancies= entityDao.search(query)
+    val occupancies = entityDao.search(query)
     put("occupancies", occupancies)
     forward()
   }
 
-  def stat_m: View = {
-    stat()
-  }
 }
