@@ -1,65 +1,58 @@
 [#ftl]
-  <div class="card card-info card-primary card-outline">
-    <div class="card-header">
-      <h3 class="card-title">
-        [#if building??]${building.name} 教室信息[#else]无教学楼 教室信息[/#if]
-        <span class="badge badge-primary">${classrooms?size}</span>
-      </h3>
-    </div>
-    [#assign typeCount={} /]
-    [#assign typeCapacity={} /]
-    [#assign typeCourseCapacity={} /]
-    [#assign typeExamCapacity={} /]
-    [#list classrooms as r]
-      [#assign typeCount=typeCount+{r.roomType.name:1+typeCount[r.roomType.name]!0} /]
-      [#assign typeCapacity=typeCapacity+{r.roomType.name:r.capacity+typeCapacity[r.roomType.name]!0} /]
-      [#assign typeCourseCapacity=typeCourseCapacity+{r.roomType.name:r.courseCapacity+typeCourseCapacity[r.roomType.name]!0} /]
-      [#assign typeExamCapacity=typeExamCapacity+{r.roomType.name:r.examCapacity+typeExamCapacity[r.roomType.name]!0} /]
-    [/#list]
-    <div class="card-body">
-        <table class="table table-hover table-sm">
-          <thead>
-             <th>教室类型</th>
-             <th>教室数</th>
-             <th>容量</th>
-             <th>上课容量</th>
-             <th>考试容量</th>
-          </thead>
+[@b.head/]
+[#include "info_macros.ftl"/]
+[#if building??]
+  [@info_header title=building.name+"占用情况"/]
+[#else]
+  [@info_header title="其他教室占用情况"/]
+[/#if]
+
+  [#assign typeCount={} /]
+  [#assign typeCapacity={} /]
+  [#assign typeCourseCapacity={} /]
+  [#assign typeExamCapacity={} /]
+  [#assign typeClassrooms={} /]
+
+  [#list classrooms as r]
+    [#assign typeCount=typeCount+{r.roomType.name:1+typeCount[r.roomType.name]!0} /]
+    [#assign typeCapacity=typeCapacity+{r.roomType.name:r.capacity+typeCapacity[r.roomType.name]!0} /]
+    [#assign typeCourseCapacity=typeCourseCapacity+{r.roomType.name:r.courseCapacity+typeCourseCapacity[r.roomType.name]!0} /]
+    [#assign typeExamCapacity=typeExamCapacity+{r.roomType.name:r.examCapacity+typeExamCapacity[r.roomType.name]!0} /]
+    [#assign typeClassrooms = typeClassrooms + {r.roomType.name:([r] + typeClassrooms[r.roomType.name]![])} /]
+  [/#list]
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="card card-info card-primary card-outline col-3">
+      <div class="card-header">
+        ${(building.name)!}教室列表  [@b.a href="!index" style="float:right"]其他教学楼[/@]
+      </div>
+      <div class="card-body" style="padding-top: 0px;">
+         <table class="table table-sm">
           <tbody>
-          [#list typeCapacity?keys as k]
-           <tr>
-            <td>${k}</td>
-            <td>${typeCount[k]}</td>
-            <td>${typeCapacity[k]}</td>
-            <td>${typeCourseCapacity[k]}</td>
-            <td>${typeExamCapacity[k]}</td>
-           </tr>
-           [/#list]
+        [#list typeClassrooms as type,rooms]
+          <tr><td> ${type} <span class="badge badge-primary">${typeCount[type]}间</span>
+             <span class="badge badge-primary">上课${typeCourseCapacity[type]}座</span>
+             <span class="badge badge-primary">考试${typeExamCapacity[type]}座</span>
+           </td></tr>
+
+          <tr><td>
+          <nav class="nav">
+          [#list rooms?sort_by("name") as room]
+          [@b.a href="!classroom?id="+room.id target="calendar_info"]
+             ${room.name}&nbsp;
+          [/@]
+          [/#list]
+          </nav>
+           </td>
+         </tr>
+
+        [/#list]
           </tbody>
-         </table>
+        </table>
+      </div>
     </div>
-    <div class="card-body">
-        <table class="table table-hover table-sm">
-          <thead>
-             <th>代码</th>
-             <th>名称</th>
-             <th>教室类型</th>
-             <th>容量</th>
-             <th>上课容量</th>
-             <th>考试容量</th>
-          </thead>
-          <tbody>
-          [#list classrooms as classroom]
-           <tr>
-            <td>${classroom.code}</td>
-            <td>[@b.a href="!calendar?id="+classroom.id]${classroom.name} [#if !classroom.roomNo??]<sup>虚拟</sup>[/#if][/@]</td>
-            <td>${classroom.roomType.name}</td>
-            <td>${classroom.capacity}</td>
-            <td>${classroom.courseCapacity}</td>
-            <td>${classroom.examCapacity}</td>
-           </tr>
-           [/#list]
-          </tbody>
-         </table>
-    </div>
+    [@b.div href="!classroom?id="+roomId class="ajax_container col-9" id="calendar_info"/]
   </div>
+</div>
+[@b.foot/]

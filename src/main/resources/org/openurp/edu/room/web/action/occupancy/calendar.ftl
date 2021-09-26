@@ -3,8 +3,8 @@
 [#assign colors = [ "black", "rgb(148, 174, 243)", "pink", "PaleGreen", "Orchid", "Cyan", "Orange", "NavajoWhite", "DarkKhaki" , "Purple", "Lime", "Yellow" ]/]
   <div class="card card-info card-primary card-outline">
     <div class="card-header row">
-      <div class="col-3"><strong>${room.name} 房间占用情况</strong></div>
-      <div class="col-9" style="font-size: 15px;text-align: right;">
+      <div class="col-5"><strong>${room.name}(${room.roomType.name} 上课${room.courseCapacity}座 考试${room.examCapacity}座) 房间占用情况</strong></div>
+      <div class="col-7" style="font-size: 15px;text-align: right;">
         [#assign sortedActivityTypes=  activityTypes?sort_by("code")/]
         [#list sortedActivityTypes?sort_by("code") as activityType]
           <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 18px">&nbsp;</span>
@@ -152,12 +152,13 @@
                 $("#occupancy").parent().append(contentDivObj);
                 var cardTop= 0,cardLeft=0;
                 //for card is flex,so absolute location is relative to the flex container
-                if($("#classroom_info").length){
-                   cardTop = $("#classroom_info").offset().top;
-                   cardLeft = $("#classroom_info").offset().left;
+                if($("#calendar_info").length){
+                   cardTop = $("#calendar_info").offset().top;
+                   cardLeft = $("#calendar_info").offset().left;
                 }
                 contentDivObj.css("top", $(el).offset().top - cardTop - contentDivObj[0].offsetHeight - 10);
-                contentDivObj.css("left", $(el).offset().left - cardLeft);
+                console.log($(el).offset().left)
+                contentDivObj.css("left", $(el).offset().left - cardLeft -70);
                 arrowObj2.css("top", arrowObj2.position().top - 2);
               }
             },
