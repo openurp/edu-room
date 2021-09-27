@@ -181,7 +181,7 @@ class RoomApplyAction extends RestfulAction[RoomApply] with ProjectSupport {
     timeRequest
   }
 
-  def apply: View = {
+  def apply(): View = {
     val roomApply = buildApply()
     val days = roomApply.time.beginOn.toEpochDay - LocalDate.now.toEpochDay
     if (days < 2) {

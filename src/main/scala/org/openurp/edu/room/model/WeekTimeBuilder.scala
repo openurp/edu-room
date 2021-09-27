@@ -57,10 +57,10 @@ object WeekTimeBuilder {
     if (tobeMerged.isEmpty) return tobeMerged
     val mergedTimeUnits = Collections.newBuffer[WeekTime]
     val activityIter = tobeMerged.iterator
-    var toMerged = activityIter.next
+    var toMerged = activityIter.next()
     mergedTimeUnits.+=(toMerged)
     while (activityIter.hasNext) {
-      val unit = activityIter.next
+      val unit = activityIter.next()
       if (toMerged.mergeable(unit, minGap)) toMerged.merge(unit, minGap)
       else {
         toMerged = unit

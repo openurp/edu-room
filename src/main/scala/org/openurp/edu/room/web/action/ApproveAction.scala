@@ -58,7 +58,7 @@ class ApproveAction extends DepartApproveAction {
    */
   def applySetting: View = {
     val id = longId("roomApply")
-    if (null == id) error("error.parameters.needed")
+    if (0 == id) error("error.parameters.needed")
     val roomApply = entityDao.get(classOf[RoomApply], id)
     put("roomTypes", getCodes(classOf[ClassroomType]))
     get("roomIds").foreach(roomIdStr => {
@@ -115,7 +115,7 @@ class ApproveAction extends DepartApproveAction {
 
   def freeRooms: View = {
     val roomApplyId = longId("roomApply")
-    if (null == roomApplyId) error("error.parameters.needed")
+    if (0 == roomApplyId) error("error.parameters.needed")
     val apply = entityDao.get(classOf[RoomApply], roomApplyId)
     val query = occupancyUtils.buildFreeroomQuery(apply.time.times)
     if (null != apply.space.campus) query.where("room.campus=:campus", apply.space.campus)

@@ -1,14 +1,13 @@
 [#ftl]
 [@b.head/]
-[#assign colors = [ "black", "rgb(148, 174, 243)", "pink", "PaleGreen", "Orchid", "Cyan", "Orange", "NavajoWhite", "DarkKhaki" , "Purple", "Lime", "Yellow" ]/]
+[#assign colors = [ "black", "cadetblue","darkcyan", "seagreen",  "chocolate",   "brown", "crimson", "blueviolet","teal" , "slateblue", "#00755e", "Yellow" ]/]
   <div class="card card-info card-primary card-outline">
     <div class="card-header row">
       <div class="col-5"><strong>${room.name}(${room.roomType.name} 上课${room.courseCapacity}座 考试${room.examCapacity}座) 房间占用情况</strong></div>
       <div class="col-7" style="font-size: 15px;text-align: right;">
         [#assign sortedActivityTypes=  activityTypes?sort_by("code")/]
         [#list sortedActivityTypes?sort_by("code") as activityType]
-          <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 18px">&nbsp;</span>
-          <span[#if activityType_has_next] style="padding-right: 10px"[/#if]>${activityType.name}</span>
+          <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 40px;text-align: center;">${activityType.name}</span>
         [/#list]
       </div>
     </div>
