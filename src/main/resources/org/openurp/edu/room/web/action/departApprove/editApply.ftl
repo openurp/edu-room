@@ -5,7 +5,7 @@ bar.addBack();
 [/@]
 [#import "../cycleType.ftl" as RoomApply/]
 <script language="JavaScript" type="text/JavaScript" src="static/scripts/ValidatorsForClassroom.js"></script>
-[@b.form action="!apply" name="roomApplyForm" target="contentDiv"]
+[@b.form action="!submitApply" name="roomApplyForm" target="contentDiv"]
     <table class="formTable" align="center" width="100%">
       <input name="roomApply.id" type="hidden" value="${roomApplyId!}"/>
         <tr class="thead" align="center">

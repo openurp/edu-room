@@ -1,12 +1,12 @@
 [#ftl]
 [@b.head/]
 [#--[#include "/template/macros.ftl"/]--]
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/StringUtils.js"></script>
+<script language="JavaScript" type="text/JavaScript" src="${b.base}/static/scripts/StringUtils.js"></script>
 <script language="JavaScript" type="text/JavaScript">
    var unitArray = new Array();
   var weekArray = new Array();
 </script>
-[@b.form action="!apply" name="roomApplyForm" target="contentDiv"]
+[@b.form action="!submitApply" name="roomApplyForm" target="contentDiv"]
   <input type="hidden" name="roomApply.id" value="${(roomApply.id)!}"/>
     <table class="formTable" align="center" width="100%">
         <input name="roomIds" type="hidden" value=""/>

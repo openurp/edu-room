@@ -2,7 +2,7 @@
 [@b.head/]
 ${b.script("my97","WdatePicker.js")}
 [#import "../cycleType.ftl" as RoomApply/]
-[@b.form action="!apply" method="post" name="roomApplyForm"]
+[@b.form action="!submitApply" method="post" name="roomApplyForm"]
     <table class="formTable" align="center" width="95%">
         <input type="hidden" name="roomIds" value="[#if roomIds?exists][#list  roomIds as id]${id},[/#list][/#if]"/>
         <tr class="thead" align="center">

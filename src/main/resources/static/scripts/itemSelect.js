@@ -2,14 +2,14 @@
  var selectedFontColor="blue";
  var selectedFontStyle="italic";
  var selectedFontBackgroundColor="#e9f2f8";
- 
+
  function setSelectedRow(table,ele){
      var rows = table.tBodies[0].rows;
      if (rows.length <= 1) {
-     	rows = table.rows;
+       rows = table.rows;
      }
      // 确定选中的是第几列
-     var index=getSelectedIndex(ele); 
+     var index=getSelectedIndex(ele);
      //alert(index)
      //alert(ele==rows[i].cells[3]);
      for(var i=1;i<rows.length;i++){
@@ -28,18 +28,18 @@
          }
      }
  }
- 
+
  function clearSelected(tables,ele){
      // 确定选中的是第几列
      var index=getSelectedIndex(ele);
      for(var i=0;i<tables.length;i++){
          clearSelectedForTable(tables[i],index);
-	 }
+   }
  }
 
  function clearSelectedForTable(table,index){
     var rows = table.tBodies[0].rows;
-	 for(var j=1;j<rows.length;j++){
+   for(var j=1;j<rows.length;j++){
          rows[j].cells[index].style.fontStyle="";
          rows[j].cells[index].style.color="";
          rows[j].cells[index].style.backgroundColor="";

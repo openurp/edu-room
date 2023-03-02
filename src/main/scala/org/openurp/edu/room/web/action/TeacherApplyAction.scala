@@ -20,40 +20,62 @@ package org.openurp.edu.room.web.action
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.{WeekDay, WeekTime}
-import org.beangle.data.dao.OqlBuilder
+import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.security.Securities
-import org.beangle.web.action.annotation.mapping
+import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.action.{EntityAction, RestfulAction}
 import org.openurp.base.edu.model.{CourseUnit, TimeSetting}
 import org.openurp.base.model.{Campus, Project, Semester, User}
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.model.{RoomApply, RoomApplyDepartCheck, TimeRequest, WeekTimeBuilder}
-import org.openurp.starter.web.support.ProjectSupport
+import org.openurp.starter.web.support.{ProjectSupport, TeacherSupport}
 
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDate, ZoneId}
 import scala.collection.mutable
 
-class RoomApplyAction extends RestfulAction[RoomApply] with ProjectSupport {
-tgrdc v vsgjj
-  override def indexSetting(): Unit = {
-    given project: Project = getProject
+/**
+ * 教职工申请
+ */
+class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
 
-    put("campuses", findInSchool(classOf[Campus]))
+  var entityDao: EntityDao = _
+
+  override def toProject(project: Project): View = {
+    put("campuses", project.campuses)
+
+    given p: Project = project
+
     put("activityTypes", getCodes(classOf[ActivityType]))
-    super.indexSetting()
+    forward()
   }
 
-  override def editSetting(roomApply: RoomApply): Unit = {
-    given project: Project = getProject
+  @mapping(value = "{id}/edit")
+  def edit(@param("id") id: String): View = {
+    val entity = getModel(id)
+    editSetting(entity)
+    put(simpleEntityName, entity)
+    forward()
+  }
 
-    put("departments", getDeparts)
-    put("campuses", findInSchool(classOf[Campus]))
+  @mapping(value = "new", view = "new,form")
+  def editNew(): View = {
+    val entity = getEntity(entityClass, simpleEntityName)
+    editSetting(entity)
+    put(simpleEntityName, entity)
+    forward()
+  }
+
+  def editSetting(roomApply: RoomApply): Unit = {
+    given project: Project = getProject()
+
+    put("departments", project.departments)
+    put("campuses", project.campuses)
     put("activityTypes", getCodes(classOf[ActivityType]))
-    put("timeSettings", getTimeSettings)
-    put("currentSemester", getSemester)
+    put("timeSettings", getTimeSettings(project))
+    put("currentSemester", getSemester())
     roomApply.applyBy = getUser
 
     // 每个学期能够选择的教学周集合
@@ -83,7 +105,6 @@ tgrdc v vsgjj
     put("weekList", WeekDay.values)
     put("semesterWeeks", semesterWeeks)
     put("defaultMaxWeeks", defaultMaxWeeks)
-    super.editSetting(roomApply)
   }
 
   def getUser: User = {
@@ -95,8 +116,8 @@ tgrdc v vsgjj
     }
   }
 
-  def getTimeSettings: Seq[TimeSetting] = {
-    val settingQuery = OqlBuilder.from(classOf[TimeSetting], "ts").where("ts.project=:project", getProject)
+  def getTimeSettings(project:Project): Seq[TimeSetting] = {
+    val settingQuery = OqlBuilder.from(classOf[TimeSetting], "ts").where("ts.project=:project", project)
     entityDao.search(settingQuery)
   }
 

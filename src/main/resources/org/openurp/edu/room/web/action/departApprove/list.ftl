@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head/]
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/roomApply.js"></script>
+<script language="JavaScript" type="text/JavaScript" src="${b.base}/static/scripts/roomApply.js"></script>
 [#assign cycleName={'1':'天','2':'周','4':'月'}/]
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]

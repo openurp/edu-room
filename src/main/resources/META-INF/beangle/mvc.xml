@@ -9,9 +9,5 @@
   </profile>
   <static>
     <bundle name="urp" version="default"/>
-    <bundle name="fullcalendar" version="5.6.0">
-      <module name="fullcalendar" js="main.js" css="main.min.css"/>
-      <module name="fullcalendar-locale" js="locales-all.js" depends="fullcalendar"/>
-    </bundle>
   </static>
 </mvc>

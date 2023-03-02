@@ -56,10 +56,10 @@ ${b.script("my97","WdatePicker.js")}
         [/@]
     [/@]
 [/@]
-[#--<script language="JavaScript" type="text/JavaScript" src="${base}/static/js/ajax-chosen.js"></script>--]
+[#--<script language="JavaScript" type="text/JavaScript" src="${b.base}/static/js/ajax-chosen.js"></script>--]
 <script>
     beangle.load(["jquery-ui", "jquery-chosen", "jquery-colorbox"], function () {
-      beangle.require(["${base}/static/js/ajax-chosen.js"], function () {
+      beangle.require(["${b.base}/static/js/ajax-chosen.js"], function () {
         jQuery("#rooms").ajaxChosen(
           {
             method: 'POST',

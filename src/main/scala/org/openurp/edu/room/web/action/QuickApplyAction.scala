@@ -1,30 +1,29 @@
 /*
- * OpenURP, Agile University Resource Planning Solution.
- *
- * Copyright © 2014, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful.
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.webmvc.api.view.View
+import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{Building, Campus}
+import org.openurp.base.model.{Building, Campus, Project}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.model.{CycleTime, RoomApply, RoomApplyDepartCheck, RoomApplyFinalCheck, SpaceRequest, TimeRequest}
 import org.openurp.edu.room.util.OccupancyUtils
@@ -37,6 +36,8 @@ class QuickApplyAction extends RoomApplyAction {
   var occupancyUtils: OccupancyUtils = _
 
   override def indexSetting(): Unit = {
+    given project: Project = getProject
+
     put("campuses", findInSchool(classOf[Campus]))
     put("activityTypes", getCodes(classOf[ActivityType]))
     put("roomTypes", getCodes(classOf[ClassroomType]))
@@ -112,6 +113,8 @@ class QuickApplyAction extends RoomApplyAction {
   }
 
   def quickApplySetting(): View = {
+    given project: Project = getProject
+
     getInt("cycleTime.cycleCount").foreach(cycleCount => {
       put("cycleCount", cycleCount)
     })
@@ -191,7 +194,7 @@ class QuickApplyAction extends RoomApplyAction {
     roomApply
   }
 
-  override def apply(): View = {
+  override def submitApply(): View = {
     val roomApply = buildApply()
     val days = roomApply.time.beginOn.toEpochDay - LocalDate.now.toEpochDay
     if (days < 2) {
@@ -203,7 +206,7 @@ class QuickApplyAction extends RoomApplyAction {
           case Some(value) => value
           case None => new RoomApplyDepartCheck
         }
-        departCheck.apply = roomApply
+        departCheck.roomApply = roomApply
         departCheck.approved = true
         departCheck.checkedAt = Instant.now()
         departCheck.checkedBy = getUser
@@ -213,7 +216,7 @@ class QuickApplyAction extends RoomApplyAction {
           case Some(value) => value
           case None => new RoomApplyFinalCheck
         }
-        finalCheck.apply = roomApply
+        finalCheck.roomApply = roomApply
         finalCheck.approved = true
         finalCheck.checkedAt = Instant.now()
         finalCheck.checkedBy = getUser

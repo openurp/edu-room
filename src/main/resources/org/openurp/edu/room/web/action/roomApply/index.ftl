@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head/]
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/itemSelect.js"></script>
+<script language="JavaScript" type="text/JavaScript" src="${b.base}/static/scripts/itemSelect.js"></script>
 [@b.toolbar title="代理申请"/]
 <table class="indexpanel">
   <tr>

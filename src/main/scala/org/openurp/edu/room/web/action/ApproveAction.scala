@@ -1,32 +1,31 @@
 /*
- * OpenURP, Agile University Resource Planning Solution.
- *
- * Copyright © 2014, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful.
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.security.Securities
-import org.beangle.webmvc.api.view.View
+import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.User
+import org.openurp.base.model.{Project, User}
 import org.openurp.code.edu.model.ClassroomType
-import org.openurp.edu.room.model.{RoomApplyDepartCheck, RoomApplyFinalCheck, RoomApply}
+import org.openurp.edu.room.model.{RoomApply, RoomApplyDepartCheck, RoomApplyFinalCheck}
 import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 
@@ -57,6 +56,7 @@ class ApproveAction extends DepartApproveAction {
    * 给申请分配教室
    */
   def applySetting: View = {
+    given project: Project = getProject
     val id = longId("roomApply")
     if (0 == id) error("error.parameters.needed")
     val roomApply = entityDao.get(classOf[RoomApply], id)
@@ -147,7 +147,7 @@ class ApproveAction extends DepartApproveAction {
         case Some(value) => value
         case None => new RoomApplyFinalCheck
       }
-      finalCheck.apply = roomApply
+      finalCheck.roomApply = roomApply
       finalCheck.approved = false
       finalCheck.checkedAt = Instant.now()
       finalCheck.checkedBy = getUser
