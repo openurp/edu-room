@@ -37,7 +37,7 @@ import java.time.{Instant, LocalDate, ZoneId}
 import scala.collection.mutable
 
 class RoomApplyAction extends RestfulAction[RoomApply] with ProjectSupport {
-tgrdc v vsgjj
+
   override def indexSetting(): Unit = {
     given project: Project = getProject
 
@@ -129,7 +129,7 @@ tgrdc v vsgjj
 
   def buildApply(): RoomApply = {
     val roomApply = populateEntity(classOf[RoomApply], "roomApply")
-    val semester = entityDao.get(classOf[Semester], intId("semester"))
+    val semester = entityDao.get(classOf[Semester], getIntId("semester"))
     val timeSetting = getTimeSettings.head
     get("weekState").foreach(weekState => {
       get("classUnit").foreach(classUnit => {

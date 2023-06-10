@@ -27,19 +27,20 @@ import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Building, Project}
 import org.openurp.code.edu.model.ActivityType
+import org.openurp.code.service.CodeService
 import org.openurp.edu.room.model.{Occupancy, WeekTimeBuilder}
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.LocalDate
 
-class OccupancyAction extends ActionSupport with EntityAction[Classroom] with ProjectSupport {
+class OccupancyAction extends ActionSupport with EntityAction[Classroom] {
 
   var entityDao: EntityDao = _
+  var codeService: CodeService = _
 
   def index(): View = {
-    val project = getProject
     val builder = OqlBuilder.from[Array[Any]](classOf[Classroom].getName, "c")
-    builder.where("c.school=:school", project.school)
+    //    builder.where("c.school=:school", project.school)
     builder.groupBy("c.campus.code,c.campus.name,c.building.id,c.building.code,c.building.name")
     builder.select("c.campus.name,c.building.id,c.building.name,count(*)")
     builder.where("c.endOn is null or c.endOn>:now", LocalDate.now)
@@ -62,9 +63,9 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] with Pr
     } else {
       builder.where("c.building is null")
     }
-    val project = getProject
-    builder.where("c.school=:school", project.school)
-    builder.where(":project in elements(c.projects)", project)
+    //    val project = getProject
+    //    builder.where("c.school=:school", project.school)
+    //    builder.where(":project in elements(c.projects)", project)
     builder.orderBy("c.code")
     builder.where("c.endOn is null or c.endOn>:now", LocalDate.now)
     entityDao.search(builder)
@@ -91,9 +92,7 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] with Pr
   def classroom(id: String): View = {
     if (!Numbers.isDigits(id)) return Status.NotFound
 
-    given project: Project = getProject
-
-    put("activityTypes", getCodes(classOf[ActivityType]))
+    put("activityTypes", codeService.get(classOf[ActivityType]))
     put("room", entityDao.get(classOf[Classroom], id.toLong))
     forward("calendar")
   }
@@ -112,7 +111,7 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] with Pr
       times.indices.foreach(i => {
         sb += "(occupancy.time.startOn = :startOn" + i + " and bitand(occupancy.time.weekstate,:weekstate" + i + ")>0)"
         params += times(i).startOn
-        params += times(i).weekstate.value
+        params += times(i).weekstate
       })
       val con = new Condition(sb.mkString(" or "))
       con.params(params)

@@ -18,26 +18,36 @@
 package org.openurp.edu.room.util
 
 import org.beangle.commons.lang.time.WeekTime
-import org.beangle.data.dao.OqlBuilder
+import org.beangle.data.dao.{Condition, OqlBuilder}
 import org.openurp.base.edu.model.Classroom
+import org.openurp.edu.room.model.Occupancy
 
 import java.time.LocalDate
 import scala.collection.mutable
 
-class OccupancyUtils {
+object OccupancyUtils {
 
-  def buildFreeroomQuery(units: mutable.Buffer[WeekTime]): OqlBuilder[Classroom] = {
-    val hql = new StringBuilder(" from org.openurp.edu.room.model.Occupancy occupancy where occupancy.room = room ")
+  def buildFreeroomQuery(units: collection.Seq[WeekTime]): OqlBuilder[Classroom] = {
+    val hql = new StringBuilder(s" from ${classOf[Occupancy].getName} o where o.room = room and (")
+    val params = new mutable.ArrayBuffer[Any]
     units.indices.foreach(i => {
-      val ocuupy = "(bitand(occupancy.time.weekstate," + units(i).weekstate.value + ")>0 " + " and to_char(occupancy.time.startOn,'yyyy-MM-dd') = '" + units(i).startOn + "' and occupancy.time.beginAt < " + units(i).endAt.value + " and occupancy.time.endAt > " + units(i).beginAt.value + ")"
+      val ocuupy = s"bitand(o.time.weekstate,:weekstate${i})>0 " +
+        s" and o.time.startOn = :startOn${i}" +
+        s" and o.time.beginAt < :endAt${i}" +
+        s" and o.time.endAt > :beginAt${i}"
+      params.addOne(units(i).weekstate)
+      params.addOne(units(i).startOn)
+      params.addOne(units(i).endAt)
+      params.addOne(units(i).beginAt)
+
       if (i > 0) hql.append(" or ")
-      else if (i == 0) hql.append(" and (")
       hql.append(ocuupy)
     })
     hql.append(")")
     val query = OqlBuilder.from(classOf[Classroom], "room")
-    query.where("room.beginOn <= :now and (room.endOn is null or room.endOn >= :now)", LocalDate.now())
-    query.where("not exists (" + hql.toString + ")")
+    query.where("room.beginOn <= :now and (room.endOn is null or room.endOn >= :now)", LocalDate.now(), LocalDate.now())
+    query.where(new Condition("not exists (" + hql.toString + ")", params.toSeq: _*))
+    println(query.build().statement)
     query
   }
 

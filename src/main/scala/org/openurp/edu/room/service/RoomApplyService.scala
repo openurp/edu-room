@@ -29,8 +29,6 @@ import scala.collection.mutable
 
 class RoomApplyService extends RestfulAction[RoomApply] {
 
-  var occupancyUtils: OccupancyUtils = _
-
   /**
    * 批准教室申请(允许批量分配教室)
    *
@@ -52,7 +50,7 @@ class RoomApplyService extends RestfulAction[RoomApply] {
     saveOrUpdate(finalCheck)
     roomApply.finalCheck = Option(finalCheck)
     val units = roomApply.time.times
-    val freerooms = entityDao.search(occupancyUtils.buildFreeroomQuery(units))
+    val freerooms = entityDao.search(OccupancyUtils.buildFreeroomQuery(units))
     val newRooms = Collections.newSet[Classroom]
     units.indices.foreach(i => {
       rooms.foreach(room => {

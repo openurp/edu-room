@@ -23,9 +23,10 @@ import org.beangle.commons.lang.time.{WeekDay, WeekTime}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.security.Securities
 import org.beangle.web.action.annotation.{mapping, param}
+import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, RestfulAction}
-import org.openurp.base.edu.model.{CourseUnit, TimeSetting}
+import org.openurp.base.edu.model.{CourseUnit, Teacher, TimeSetting}
 import org.openurp.base.model.{Campus, Project, Semester, User}
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.clazz.service.CourseTableStyle
@@ -41,13 +42,8 @@ import scala.collection.mutable
  */
 class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
 
-  var entityDao: EntityDao = _
-
-  override def toProject(project: Project): View = {
+  override def projectIndex(teacher: Teacher)(using project: Project): View = {
     put("campuses", project.campuses)
-
-    given p: Project = project
-
     put("activityTypes", getCodes(classOf[ActivityType]))
     forward()
   }
@@ -69,13 +65,13 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
   }
 
   def editSetting(roomApply: RoomApply): Unit = {
-    given project: Project = getProject()
+    given project: Project = getProject
 
     put("departments", project.departments)
     put("campuses", project.campuses)
     put("activityTypes", getCodes(classOf[ActivityType]))
     put("timeSettings", getTimeSettings(project))
-    put("currentSemester", getSemester())
+    put("currentSemester", getSemester)
     roomApply.applyBy = getUser
 
     // 每个学期能够选择的教学周集合
@@ -95,7 +91,7 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
         for (i <- 1 until startWeek) {
           starts.add(i)
         }
-        weekList.--=(starts)
+        weekList --= starts
       }
       semesterWeeks.put(s, weekList)
       defaultMaxWeeks.put(s, getWeeks(s))
@@ -116,9 +112,10 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
     }
   }
 
-  def getTimeSettings(project:Project): Seq[TimeSetting] = {
-    val settingQuery = OqlBuilder.from(classOf[TimeSetting], "ts").where("ts.project=:project", project)
-    entityDao.search(settingQuery)
+  def getTimeSettings(project: Project): Seq[TimeSetting] = {
+    val query = OqlBuilder.from(classOf[TimeSetting], "ts")
+    if (null != project) query.where("ts.project=:project", project)
+    entityDao.search(query)
   }
 
   def getWeeks(semester: Semester): Int = {
@@ -150,8 +147,8 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
 
   def buildApply(): RoomApply = {
     val roomApply = populateEntity(classOf[RoomApply], "roomApply")
-    val semester = entityDao.get(classOf[Semester], intId("semester"))
-    val timeSetting = getTimeSettings.head
+    val semester = entityDao.get(classOf[Semester], getIntId("semester"))
+    val timeSetting = getTimeSettings(null).head
     get("weekState").foreach(weekState => {
       get("classUnit").foreach(classUnit => {
         val timeRequest = buildApplyTimeByWeekState(timeSetting, semester, weekState, classUnit)

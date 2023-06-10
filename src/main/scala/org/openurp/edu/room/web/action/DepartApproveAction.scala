@@ -79,7 +79,7 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
   }
 
   def preview(): View = {
-    put(simpleEntityName, entityDao.get(classOf[RoomApply],longId("roomApply")))
+    put(simpleEntityName, entityDao.get(classOf[RoomApply],getLongId("roomApply")))
     forward()
   }
 }

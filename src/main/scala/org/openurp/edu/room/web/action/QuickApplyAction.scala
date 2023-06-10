@@ -33,8 +33,6 @@ import scala.sys.error
 
 class QuickApplyAction extends RoomApplyAction {
 
-  var occupancyUtils: OccupancyUtils = _
-
   override def indexSetting(): Unit = {
     given project: Project = getProject
 
@@ -64,7 +62,7 @@ class QuickApplyAction extends RoomApplyAction {
   override def search(): View = {
     val times = getCycleTime().convert.toBuffer
     if (null == times || times.length == 0) error("借用时间错误!")
-    val builder = occupancyUtils.buildFreeroomQuery(times).limit(getPageLimit)
+    val builder = OccupancyUtils.buildFreeroomQuery(times).limit(getPageLimit)
     get(Order.OrderStr) match {
       case Some(orderClause) => builder.orderBy(orderClause)
       case None => builder.orderBy("room.name,room.capacity")

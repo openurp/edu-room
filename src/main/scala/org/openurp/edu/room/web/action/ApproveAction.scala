@@ -34,11 +34,10 @@ import scala.sys.error
 
 class ApproveAction extends DepartApproveAction {
 
-  var occupancyUtils: OccupancyUtils = _
   var roomApplyService: RoomApplyService = _
 
   def report: View = {
-    val ids = longIds("roomApply")
+    val ids = getLongIds("roomApply")
     val applies = entityDao.find(classOf[RoomApply], ids).filter(e => (e.approved != null && e.approved.get))
     put("applies", applies)
     put("project", getProject)
@@ -57,7 +56,7 @@ class ApproveAction extends DepartApproveAction {
    */
   def applySetting: View = {
     given project: Project = getProject
-    val id = longId("roomApply")
+    val id = getLongId("roomApply")
     if (0 == id) error("error.parameters.needed")
     val roomApply = entityDao.get(classOf[RoomApply], id)
     put("roomTypes", getCodes(classOf[ClassroomType]))
@@ -83,7 +82,7 @@ class ApproveAction extends DepartApproveAction {
       case Some(roomIdStr) => {
         val roomIds = Strings.splitToLong(roomIdStr)
         val times = roomApply.time.times
-        val builder = occupancyUtils.buildFreeroomQuery(times)
+        val builder = OccupancyUtils.buildFreeroomQuery(times)
         builder.where("room.id in (:roomIds)", roomIds)
         val classrooms = entityDao.search(builder)
         if (classrooms.size != roomIds.length) {
@@ -114,10 +113,10 @@ class ApproveAction extends DepartApproveAction {
   }
 
   def freeRooms: View = {
-    val roomApplyId = longId("roomApply")
+    val roomApplyId = getLongId("roomApply")
     if (0 == roomApplyId) error("error.parameters.needed")
     val apply = entityDao.get(classOf[RoomApply], roomApplyId)
-    val query = occupancyUtils.buildFreeroomQuery(apply.time.times)
+    val query = OccupancyUtils.buildFreeroomQuery(apply.time.times)
     if (null != apply.space.campus) query.where("room.campus=:campus", apply.space.campus)
     populateConditions(query, "room.capacity")
     getInt("room.capacity") match {
@@ -138,7 +137,7 @@ class ApproveAction extends DepartApproveAction {
    * 取消已批准的教室
    */
   def cancel: View = {
-    val roomApplies = entityDao.find(classOf[RoomApply], longIds("roomApply"))
+    val roomApplies = entityDao.find(classOf[RoomApply], getLongIds("roomApply"))
     if (roomApplies.isEmpty) error("error.parameters.needed")
     roomApplies.foreach(roomApply => {
       roomApply.rooms.clear()
