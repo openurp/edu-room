@@ -1,13 +1,13 @@
 [#ftl]
 [@b.head/]
-[#assign colors = [ "black", "cadetblue","darkcyan", "seagreen",  "chocolate",   "brown", "crimson", "blueviolet","teal" , "slateblue", "#00755e", "Yellow" ]/]
+[#assign colors = [ "black", "DodgerBlue","SlateBlue", "Violet",  "MediumSeaGreen",   "Gray", "Orange", "Tomato","teal" , "slateblue", "#00755e", "Yellow" ]/]
   <div class="card card-info card-primary card-outline">
     <div class="card-header row">
       <div class="col-5"><strong>${room.name}(${room.roomType.name} 上课${room.courseCapacity}座 考试${room.examCapacity}座) 房间占用情况</strong></div>
       <div class="col-7" style="font-size: 15px;text-align: right;">
         [#assign sortedActivityTypes=  activityTypes?sort_by("code")/]
         [#list sortedActivityTypes?sort_by("code") as activityType]
-          <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 40px;text-align: center;">${activityType.name}</span>
+          <span style="display:inline-block;background-color: ${(colors[activityType_index + 1])!colors[0]};width: 40px;text-align: center;color:white;">${activityType.name}</span>
         [/#list]
       </div>
     </div>
@@ -53,6 +53,9 @@
        border-left:5px solid transparent;
        border-right:5px solid transparent;
     }
+    .fc-daygrid-day a{
+      color:white;
+    }
   </style>
   <div class="container">
     <div  id="occupancy"></div>
@@ -60,6 +63,7 @@
 
   </div>
 </div>
+
   <script>
     var roomName="${room.name?js_string}"
       $(document).ready(function() {
@@ -83,6 +87,9 @@
             "initialDate": "${b.now?string("yyyy-MM-dd")}",
             "navLinks": true,
             "editable": false,
+            "allDaySlot":false,
+            "slotMinTime":"07:00:00",
+            "slotMaxTime":"22:00:00",
             "handleWindowResize": true,
             "events": function(range, process, timezone, callback) {
               $.ajax({
@@ -188,5 +195,4 @@
        }
     }
   </script>
-
 [@b.foot/]
