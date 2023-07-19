@@ -1,0 +1,35 @@
+<style>
+
+</style>
+  [@b.toolbar title="教室代理借用申请"/]
+  [#assign capacity = 0/]
+  [#list classrooms as r]
+    [#assign capacity = r.courseCapacity + capacity /]
+  [/#list]
+  [@b.form name="roomSearchForm" action="!saveApply" theme="list"]
+    [@b.field label="借用时间" required="true"]
+      ${time}
+      <input name="time.beginOn" type="hidden" value="${time.beginOn?string('yyyy-MM-dd')}"/>
+      <input name="time.endOn" type="hidden" value="${time.endOn?string('yyyy-MM-dd')}"/>
+      <input name="time.beginAt" type="hidden" value="${time.beginAt}"/>
+      <input name="time.endAt" type="hidden" value="${time.endAt}"/>
+      <input name="time.cycle" type="hidden" value="${time.cycle}"/>
+    [/@]
+    [@b.field label="拟借教室"]
+      <input name="classroomIds" value="[#list classrooms as r]${r.id}[#sep],[/#list]" type="hidden">
+      <input name="apply.space.roomComment" value="[#list classrooms as r]${r.name}[#sep],[/#list]" type="hidden">
+      [#list classrooms?sort_by('name') as r]${r.name}[#sep],[/#list]
+    [/@]
+    [@b.field label="经办人" required="true"]
+      ${user.code} ${user.name} ${user.department.name}
+    [/@]
+    [@base.user name="applicant.id" required="true" label="借用人"  style="width:300px;" empty="..."/]
+    [@b.radios name="apply.space.requireMultimedia" items={'1':'需要使用','0':'不需要'} label="多媒体设备" value="1"/]
+    [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型"/]
+    [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
+    [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
+    [@b.textfield name="apply.applicant.mobile" label="联系手机" required="true"/]
+    [@b.formfoot]
+      [@b.submit value="提交"/]
+    [/@]
+  [/@]

@@ -17,15 +17,15 @@
         </tr>
         <tr>
           <td class="title" align="right" width="15%" id="f_applicant"><font color="red">*</font>&nbsp;借用人：</td>
-            <td width="35%"><input type="text" title="借用人" name="roomApply.borrower.applicant" maxlength="20" value="${(roomApply.borrower.applicant)!}" /></td>
+            <td width="35%"><input type="text" title="借用人" name="roomApply.applicant.user" maxlength="20" value="${(roomApply.applicant.user)!}" /></td>
           <td class="title" align="right" width="15%"><font color="red">*</font>&nbsp;经办人姓名：</td>
           <td width="35%"><input type="hidden" name="roomApply.applyBy.id" value="${(roomApply.applyBy.id)!}"/>${(roomApply.applyBy.name?html)!} 填表申请时间：${b.now?string('MM-dd HH:mm')}</td>
         </tr>
         <tr>
           <td class="title"><font color="red">*</font>&nbsp;归口部门：</td>
-          <td>[@b.select empty="..." items=departments?sort_by("name") name="roomApply.borrower.department.id" value=(roomApply.borrower.department)! label=""/]</td>
+          <td>[@b.select empty="..." items=departments?sort_by("name") name="roomApply.applicant.auditDepart.id" value=(roomApply.applicant.auditDepart)! label=""/]</td>
           <td class="title" align="right" id="f_mobile"><font color="red">*</font>&nbsp;联系方式：</td>
-      <td><input type="text" name="roomApply.borrower.mobile" size="15" maxlength="20" value="${(roomApply.borrower.mobile)!}" title="联系方式" /></td>
+      <td><input type="text" name="roomApply.applicant.mobile" size="15" maxlength="20" value="${(roomApply.applicant.mobile)!}" title="联系方式" /></td>
         </tr>
         <tr>
           <td class="title" id="f_activityType" >借用用途：</td>
@@ -152,10 +152,10 @@
      jQuery("#h_week").assert(function(){
        return strWeek != "";
        },"没有选择教学周");
-     jQuery("input[name='roomApply.borrower.applicant']").require().match('notBlank');
-      jQuery("input[name='roomApply.borrower.mobile']").require().match('notBlank');
+     jQuery("input[name='roomApply.applicant.user']").require().match('notBlank');
+      jQuery("input[name='roomApply.applicant.mobile']").require().match('notBlank');
      jQuery("select[name='roomApply.campus.id']").require();
-     jQuery("select[name='roomApply.borrower.department.id']").require();
+     jQuery("select[name='roomApply.applicant.auditDepart.id']").require();
      // jQuery("input[name='roomApply.activity.name']").require().match('notBlank');
      jQuery("input[name='roomApply.activity.attendanceNum']").require().match('notBlank').match('integer');
     if(jQuery.validity.end().valid) {

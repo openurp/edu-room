@@ -11,7 +11,15 @@
     [#list classrooms as classroom]
      <tr>
       <td>${classroom_index+1}</td>
-      <td>${classroom.name} [#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]</td>
+      <td>
+        [#if logined]
+          [@b.a target="_blank" href="occupancy!classroom?id="+classroom.id+"&beginOn="+Parameters['date']]
+            ${classroom.name}[#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]
+          [/@]
+        [#else]
+          ${classroom.name}[#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]
+        [/#if]
+      </td>
       <td>${classroom.roomType.name}</td>
       <td>${(classroom.building.name)!}</td>
       <td>${classroom.courseCapacity}</td>

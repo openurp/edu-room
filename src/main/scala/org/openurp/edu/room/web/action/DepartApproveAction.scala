@@ -37,8 +37,8 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
     put("campuses", findInSchool(classOf[Campus]))
     put("activityTypes", getCodes(classOf[ActivityType]))
     put("roomTypes", getCodes(classOf[ClassroomType]))
-    put("project",project)
-    put("semester",getSemester)
+    put("project", project)
+    put("semester", getSemester)
     super.indexSetting()
   }
 
@@ -57,18 +57,15 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
       builder.where("exists(from roomApply.rooms room where room.roomType =:roomType)", room.roomType)
     }
     get("lookContent").foreach(lookContent => lookContent match {
-      case "1" => {
-        builder.where("roomApply.departCheck.approved = true")
+      case "1" =>
+        builder.where("roomApply.departApproved = true")
         builder.where("roomApply.approved is null")
-      }
-      case "2" => {
-        builder.where("roomApply.departCheck.approved = true")
+      case "2" =>
+        builder.where("roomApply.departApproved = true")
         builder.where("roomApply.approved = true")
-      }
-      case "3" => {
-        builder.where("roomApply.departCheck.approved = true")
+      case "3" =>
+        builder.where("roomApply.departApproved = true")
         builder.where("roomApply.approved = false")
-      }
       case "" =>
     })
     get(Order.OrderStr) foreach { orderClause =>
@@ -79,7 +76,7 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
   }
 
   def preview(): View = {
-    put(simpleEntityName, entityDao.get(classOf[RoomApply],getLongId("roomApply")))
+    put(simpleEntityName, entityDao.get(classOf[RoomApply], getLongId("roomApply")))
     forward()
   }
 }

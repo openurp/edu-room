@@ -25,7 +25,7 @@ import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Project, User}
 import org.openurp.code.edu.model.ClassroomType
-import org.openurp.edu.room.model.{RoomApply, RoomApplyDepartCheck, RoomApplyFinalCheck}
+import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 
@@ -36,7 +36,7 @@ class ApproveAction extends DepartApproveAction {
 
   var roomApplyService: RoomApplyService = _
 
-  def report: View = {
+  def report(): View = {
     val ids = getLongIds("roomApply")
     val applies = entityDao.find(classOf[RoomApply], ids).filter(e => (e.approved != null && e.approved.get))
     put("applies", applies)
@@ -46,7 +46,7 @@ class ApproveAction extends DepartApproveAction {
 
   override def search(): View = {
     val builder = getQueryBuilder
-    if (Strings.isEmpty(get("lookContent").orNull)) builder.where("roomApply.departCheck.approved = true")
+    //if (Strings.isEmpty(get("lookContent").orNull)) builder.where("roomApply.departApproved = true")
     put("roomApplies", entityDao.search(builder))
     forward()
   }
@@ -54,8 +54,9 @@ class ApproveAction extends DepartApproveAction {
   /**
    * 给申请分配教室
    */
-  def applySetting: View = {
+  def applySetting(): View = {
     given project: Project = getProject
+
     val id = getLongId("roomApply")
     if (0 == id) error("error.parameters.needed")
     val roomApply = entityDao.get(classOf[RoomApply], id)
@@ -76,7 +77,7 @@ class ApproveAction extends DepartApproveAction {
   /**
    * 审批教室借用
    */
-  def approve: View = {
+  def approve(): View = {
     val roomApply = populateEntity(classOf[RoomApply], "roomApply")
     get("roomIds") match {
       case Some(roomIdStr) => {
@@ -112,7 +113,7 @@ class ApproveAction extends DepartApproveAction {
     }
   }
 
-  def freeRooms: View = {
+  def freeRooms(): View = {
     val roomApplyId = getLongId("roomApply")
     if (0 == roomApplyId) error("error.parameters.needed")
     val apply = entityDao.get(classOf[RoomApply], roomApplyId)
@@ -136,23 +137,23 @@ class ApproveAction extends DepartApproveAction {
   /**
    * 取消已批准的教室
    */
-  def cancel: View = {
+  def cancel(): View = {
     val roomApplies = entityDao.find(classOf[RoomApply], getLongIds("roomApply"))
     if (roomApplies.isEmpty) error("error.parameters.needed")
     roomApplies.foreach(roomApply => {
       roomApply.rooms.clear()
       saveOrUpdate(roomApply)
-      val finalCheck = roomApply.finalCheck match {
-        case Some(value) => value
-        case None => new RoomApplyFinalCheck
-      }
-      finalCheck.roomApply = roomApply
-      finalCheck.approved = false
-      finalCheck.checkedAt = Instant.now()
-      finalCheck.checkedBy = getUser
-      finalCheck.opinions = get("roomApply.approvedRemark")
-      saveOrUpdate(finalCheck)
-      roomApply.finalCheck = Option(finalCheck)
+      //      val finalCheck = roomApply.finalCheck match {
+      //        case Some(value) => value
+      //        case None => new RoomApplyFinalCheck
+      //      }
+      //      finalCheck.roomApply = roomApply
+      //      finalCheck.approved = false
+      //      finalCheck.checkedAt = Instant.now()
+      //      finalCheck.checkedBy = getUser
+      //      finalCheck.opinions = get("roomApply.approvedRemark")
+      //      saveOrUpdate(finalCheck)
+      //      roomApply.finalCheck = Option(finalCheck)
       roomApply.approved = Option(false)
     })
     try entityDao.saveOrUpdate(roomApplies)

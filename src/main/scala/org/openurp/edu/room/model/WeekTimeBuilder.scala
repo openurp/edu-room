@@ -26,7 +26,7 @@ import scala.collection.mutable
 
 object WeekTimeBuilder {
 
-  def build(beginOn: LocalDate, endOn: LocalDate): Seq[WeekTime] = {
+  def build(beginOn: LocalDate, endOn: LocalDate, dayInterval: Int): Seq[WeekTime] = {
     val timeMap = Collections.newMap[LocalDate, WeekTime]
     var newBeginOn = beginOn
     while (!newBeginOn.isAfter(endOn)) {
@@ -35,7 +35,7 @@ object WeekTimeBuilder {
         case Some(existed) => existed.weekstate = existed.weekstate | t.weekstate
         case None => timeMap.put(t.startOn, t)
       }
-      newBeginOn = newBeginOn.plusDays(1)
+      newBeginOn = newBeginOn.plusDays(dayInterval)
     }
     val times = timeMap.values.toSeq.sortBy(x => x.startOn)
     times

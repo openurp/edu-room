@@ -14,15 +14,15 @@ bar.addBack();
         <tr>
           <td class="title" style="text-align:center; width: 15%" rowspan="2">借用人</td>
           <td class="title" align="right" id="f_username" width="18%"><font color="red">*</font>&nbsp;姓名：</td>
-          <td><input type="text" name="roomApply.borrower.applicant" value="${roomApply.borrower.applicant}"/></td>
+          <td><input type="text" name="roomApply.applicant.user" value="${roomApply.applicant.user}"/></td>
           <td class="title" align="right" width="18%" id="f_addr"><font color="red">*</font>&nbsp;地址：</td>
-          <td><input type="text" name="roomApply.borrower.addr" size="15" maxlength="200" value="${(roomApply.borrower.addr)?default("")}"/></td>
+          <td><input type="text" name="roomApply.applicant.addr" size="15" maxlength="200" value="${(roomApply.applicant.addr)?default("")}"/></td>
         </tr>
         <tr>
           <td class="title" align="right" id="f_mobile"><font color="red">*</font>&nbsp;手机：</td>
-      <td><input type="text" name="roomApply.borrower.mobile" size="15" value="${(roomApply.borrower.mobile)?default("")}" maxlength="20"/></td>
+      <td><input type="text" name="roomApply.applicant.mobile" size="15" value="${(roomApply.applicant.mobile)?default("")}" maxlength="20"/></td>
       <td class="title" align="right" id="f_email"><font color="red">*</font>&nbsp;E-mail：</td>
-      <td><input type="text" name="roomApply.borrower.email" value="${(roomApply.borrower.email)?default("")}" size="15" maxlength="50"/></td>
+      <td><input type="text" name="roomApply.applicant.email" value="${(roomApply.applicant.email)?default("")}" size="15" maxlength="50"/></td>
         </tr>
         <tr>
           <td class="title" style="text-align:center" rowspan="2">借用用途、性质</td>
@@ -119,9 +119,9 @@ bar.addBack();
         var a_fields;
         if(jQuery("#roomApplyTimeType").val()=="1"){
           a_fields = {
-            'roomApply.borrower.addr':{'l':'借用人地址', 'r':true, 't':'f_addr'},
-            'roomApply.borrower.mobile':{'l':'借用人手机', 'r':true, 't':'f_mobile','f':'unsigned'},
-            'roomApply.borrower.email':{'l':'借用人E-mail', 'r':true, 't':'f_email', 'f':'email'},
+            'roomApply.applicant.addr':{'l':'借用人地址', 'r':true, 't':'f_addr'},
+            'roomApply.applicant.mobile':{'l':'借用人手机', 'r':true, 't':'f_mobile','f':'unsigned'},
+            'roomApply.applicant.email':{'l':'借用人E-mail', 'r':true, 't':'f_email', 'f':'email'},
             'roomApply.activity.name':{'l':'活动名称', 'r':true, 't':'f_name'},
             'roomApply.usage.id':{'l':'活动类型','r':true, 't':'f_activityType'},
             'roomApply.isFree':{'l':'是否具有营利性', 'r':true, 't':'f_isFree'},
@@ -137,9 +137,9 @@ bar.addBack();
           };
         }else{
           a_fields = {
-            'roomApply.borrower.addr':{'l':'借用人地址', 'r':true, 't':'f_addr'},
-            'roomApply.borrower.mobile':{'l':'借用人手机', 'r':true, 't':'f_mobile'},
-            'roomApply.borrower.email':{'l':'借用人E-mail', 'r':true, 't':'f_email', 'f':'email'},
+            'roomApply.applicant.addr':{'l':'借用人地址', 'r':true, 't':'f_addr'},
+            'roomApply.applicant.mobile':{'l':'借用人手机', 'r':true, 't':'f_mobile'},
+            'roomApply.applicant.email':{'l':'借用人E-mail', 'r':true, 't':'f_email', 'f':'email'},
             'roomApply.activity.name':{'l':'活动名称', 'r':true, 't':'f_name'},
             'roomApply.usage.id':{'l':'活动类型','r':true, 't':'f_activityType'},
             'roomApply.isFree':{'l':'是否具有营利性', 'r':true, 't':'f_isFree'},

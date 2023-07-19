@@ -11,7 +11,7 @@
     <div class="search-panel">
     [@b.form action="!search" theme="search" title="查询条件" name="searchRoomApplyApproveForm" target="contentDiv"]
       [@urp_base.semester id="f_semester" label="学年学期" name="roomApply.semester.id" value=semester/]
-      [@b.textfield label="借用人" maxlength="20" name="roomApply.borrower.applicant"/]
+      [@b.textfield label="借用人" maxlength="20" name="roomApply.applicant.user"/]
       [@b.select label="校区" items=campuses empty="..." name="roomApply.campus.id"/]
       [@b.select label="活动/用途" items=activityTypes name="roomApply.activity.activityType.id" empty="..."/]
       [@b.select label="多媒体" items={"1":"使用","0","不使用"} empty="..." name="roomApply.isMultimedia" class="formHidden"/]

@@ -22,7 +22,7 @@
               }
         bg.form.addInput(form,"roomApplyIds","");
       }
-      bg.form.addInput(form, "keys", "activity.name,usage.name,activity.speaker,activity.attendee,activity.attendance,campus.name,roomRequest,borrower.applicant,updatedAt,applyTime,auditDepart.name,isDepartApproved,departApproveBy.fullname,departApproveAt,isApproved,approveBy.fullname,approveAt,hours,isMultimedia,roomInfo");
+      bg.form.addInput(form, "keys", "activity.name,usage.name,activity.speaker,activity.attendee,activity.attendance,campus.name,roomRequest,applicant.user,updatedAt,applyTime,auditDepart.name,isDepartApproved,departApproveBy.fullname,departApproveAt,isApproved,approveBy.fullname,approveAt,hours,isMultimedia,roomInfo");
       bg.form.addInput(form, "titles", "活动名称,活动类型,主讲人及内容,出席对象,出席总人数,借用校区,其他要求,借用人,提交申请时间,申请占用时间,借用部门,归口审核,归口审核人,归口审核时间,物管审核,物管审核人,物管审核时间,时间(小时数),是否使用多媒体设备,批准教室信息");
       bg.form.addInput(form, "fileName", "教室借用信息");
       bg.form.submit(form,"${b.url('!export')}","_self");
@@ -42,7 +42,7 @@
       [@b.col title="使用教室" width="20%"]
         [#list roomApply.rooms?if_exists as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
       [/@]
-    [@b.col property="borrower.applicant" sortable="false" title="借用人"  width="10%"/]
+    [@b.col property="applicant.user" sortable="false" title="借用人"  width="10%"/]
     [@b.col property="updatedAt" title="申请时间"  width="10%"]${(roomApply.applyAt?string("yy-MM-dd HH:mm"))?default("")}[/@]
     [@b.col property="isDepartApproved" title="状态"  width="10%"]
       ${(roomApply.isDepartApproved?string("审核通过","审核不通过"))?default("待审核")}<input type="hidden" id="${"depart"+roomApply.id}" value="${(roomApply.isDepartApproved?string("审核通过","审核不通过"))?default("待审核")}"/>

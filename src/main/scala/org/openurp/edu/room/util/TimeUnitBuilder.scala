@@ -71,9 +71,9 @@ class TimeUnitBuilder {
     while (!startOn.isAfter(end)) {
       add(startOn)
       cycleType match {
-        case CycleTime.DAY => startOn = startOn.plusDays(count)
-        case CycleTime.WEEK => startOn = startOn.plusWeeks(count)
-        case CycleTime.MONTH => startOn = startOn.plusMonths(count)
+        case 1 => startOn = startOn.plusDays(count)
+        case 2 => startOn = startOn.plusWeeks(count)
+        case 4 => startOn = startOn.plusMonths(count)
       }
     }
   }

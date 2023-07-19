@@ -94,6 +94,7 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] {
 
     put("activityTypes", codeService.get(classOf[ActivityType]))
     put("room", entityDao.get(classOf[Classroom], id.toLong))
+    put("beginOn", getDate("beginOn").getOrElse(LocalDate.now))
     forward("calendar")
   }
 
@@ -104,8 +105,8 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] {
     getLong("roomId").foreach(roomId => {
       query.where("occupancy.room.id = :roomId", roomId)
     })
-    val times = WeekTimeBuilder.build(startOn, endOn)
-    if (times.size > 0) {
+    val times = WeekTimeBuilder.build(startOn, endOn, 1)
+    if (times.nonEmpty) {
       val sb = Collections.newBuffer[String]
       val params = Collections.newBuffer[Any]
       times.indices.foreach(i => {

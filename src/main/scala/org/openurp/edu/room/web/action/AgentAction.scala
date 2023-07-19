@@ -18,22 +18,67 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
-import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.HourMinute
+import org.beangle.commons.lang.{Enums, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{Building, Campus, Project}
+import org.openurp.base.model.{Building, Campus, Project, User}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
-import org.openurp.edu.room.model.{CycleTime, RoomApply, RoomApplyDepartCheck, RoomApplyFinalCheck, SpaceRequest, TimeRequest}
+import org.openurp.edu.room.model.*
+import org.openurp.edu.room.model.CycleTime.CycleTimeType
+import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 
 import java.time.{Instant, LocalDate}
 import scala.sys.error
 
-class QuickApplyAction extends RoomApplyAction {
+/** 代理借用
+ */
+class AgentAction extends ApplyAction {
 
-  override def indexSetting(): Unit = {
+  var roomApplyService: RoomApplyService = _
+
+  override def applyForm(): View = {
+    val time = getApplyTime()
+    put("time", time)
+    put("activityTypes", codeService.get(classOf[ActivityType]).map(x => (x.id, x.name)).toMap)
+    val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
+    put("classrooms", rooms)
+    put("user", this.getUser)
+    forward()
+  }
+
+  override def saveApply(): View = {
+    val time = getApplyTime()
+    val apply = this.populate(classOf[RoomApply], "apply")
+
+    if (null == apply.time) apply.time = new TimeRequest()
+    apply.time.times.addAll(time.toWeektimes())
+    apply.time.beginOn = time.beginOn
+    apply.time.endOn = time.endOn
+
+    val applicant = entityDao.get(classOf[User], getLongId("applicant"))
+    val applier = getUser
+    apply.applicant.auditDepart = applier.department
+    apply.applicant.user = applicant
+    apply.departApproved = Some(true)
+
+    val activity = apply.activity
+    activity.speaker = "--"
+    activity.attendance = "--"
+
+    val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
+    apply.space.campus = rooms.head.campus
+    apply.school = applier.school
+    apply.applyBy = applier
+    apply.applyAt = Instant.now
+    entityDao.saveOrUpdate(apply)
+    roomApplyService.approve(apply, applier, rooms)
+    redirect("search", "借用提交完成")
+  }
+
+  def indexSetting(): Unit = {
     given project: Project = getProject
 
     put("campuses", findInSchool(classOf[Campus]))
@@ -46,21 +91,10 @@ class QuickApplyAction extends RoomApplyAction {
     get("alert").foreach(alert => {
       put("alert", alert)
     })
-    super.indexSetting()
   }
 
-  def campusBuilding(): View = {
-    val builder = OqlBuilder.from(classOf[Building], "building")
-    getInt("campusId").foreach(campusId => {
-      builder.where("building.campus.id = :campusId", campusId)
-    })
-    builder.where("building.beginOn <= :now and (building.endOn is null or building.endOn >= :now)", LocalDate.now()).orderBy("building.name")
-    put("datas", entityDao.search(builder))
-    forward()
-  }
-
-  override def search(): View = {
-    val times = getCycleTime().convert.toBuffer
+  def search2(): View = {
+    val times = getCycleTime().convert().toBuffer
     if (null == times || times.length == 0) error("借用时间错误!")
     val builder = OccupancyUtils.buildFreeroomQuery(times).limit(getPageLimit)
     get(Order.OrderStr) match {
@@ -81,7 +115,7 @@ class QuickApplyAction extends RoomApplyAction {
       cycleDate.cycleCount = cycleCount
     })
     getInt("cycleTime.cycleType").foreach(cycleType => {
-      cycleDate.cycleType = cycleType
+      cycleDate.cycleType = Enums.of(classOf[CycleTimeType], cycleType).get
     })
     getDate("cycleTime.beginOn").foreach(dateBegin => {
       cycleDate.beginOn = dateBegin
@@ -173,7 +207,7 @@ class QuickApplyAction extends RoomApplyAction {
         }
       }
     })
-    val times = getCycleTime().convert.toBuffer
+    val times = getCycleTime().convert().toBuffer
     val timeRequest = new TimeRequest
     timeRequest.times = times
     getDate("cycleTime.beginOn").foreach(beginOn => {
@@ -183,7 +217,6 @@ class QuickApplyAction extends RoomApplyAction {
       timeRequest.endOn = endOn
     })
     roomApply.time = timeRequest
-    roomApply.time.calcMinutes()
     roomApply.applyAt = Instant.now()
     roomApply.applyBy = getUser
     roomApply.school = getUser.school
@@ -200,26 +233,26 @@ class QuickApplyAction extends RoomApplyAction {
     } else {
       try {
         saveOrUpdate(roomApply)
-        val departCheck = roomApply.departCheck match {
-          case Some(value) => value
-          case None => new RoomApplyDepartCheck
-        }
-        departCheck.roomApply = roomApply
-        departCheck.approved = true
-        departCheck.checkedAt = Instant.now()
-        departCheck.checkedBy = getUser
-        saveOrUpdate(departCheck)
-        roomApply.departCheck = Option(departCheck)
-        val finalCheck = roomApply.finalCheck match {
-          case Some(value) => value
-          case None => new RoomApplyFinalCheck
-        }
-        finalCheck.roomApply = roomApply
-        finalCheck.approved = true
-        finalCheck.checkedAt = Instant.now()
-        finalCheck.checkedBy = getUser
-        saveOrUpdate(finalCheck)
-        roomApply.finalCheck = Option(finalCheck)
+        //        val departCheck = roomApply.departCheck match {
+        //          case Some(value) => value
+        //          case None => new RoomApplyDepartCheck
+        //        }
+        //        departCheck.roomApply = roomApply
+        //        departCheck.approved = true
+        //        departCheck.checkedAt = Instant.now()
+        //        departCheck.checkedBy = getUser
+        //        saveOrUpdate(departCheck)
+        //        roomApply.departCheck = Option(departCheck)
+        //        val finalCheck = roomApply.finalCheck match {
+        //          case Some(value) => value
+        //          case None => new RoomApplyFinalCheck
+        //        }
+        //        finalCheck.roomApply = roomApply
+        //        finalCheck.approved = true
+        //        finalCheck.checkedAt = Instant.now()
+        //        finalCheck.checkedBy = getUser
+        //        saveOrUpdate(finalCheck)
+        //        roomApply.finalCheck = Option(finalCheck)
         roomApply.approved = Option(true)
         saveOrUpdate(roomApply)
         redirect("info", "&id=" + roomApply.id, null)

@@ -12,7 +12,7 @@
     </tr>
     <tr>
       <td class="title" align="right" width="15%" ><font color="red">*</font>&nbsp;借用人：</td>
-        <td width="35%">${roomApply.borrower.applicant!}</td>
+        <td width="35%">${roomApply.applicant.user!}</td>
       <td class="title" align="right" width="15%"><font color="red">*</font>&nbsp;经办人姓名：</td>
       <td width="35%">${roomApply.user.fullname} 填表申请时间：${roomApply.updatedAt?string('yyyy-MM-dd HH:mm:ss')}</td>
     </tr>
@@ -20,7 +20,7 @@
       <td class="title"><font color="red">*</font>&nbsp;归口部门：</td>
       <td>${roomApply.auditDepart.name}</td>
       <td class="title" align="right" >&nbsp;联系方式：</td>
-    <td>${roomApply.borrower.mobile!}</td>
+    <td>${roomApply.applicant.mobile!}</td>
     </tr>
     <tr>
       <td class="title"  >${b.text('roomApply.usage.name')}：</td>

@@ -84,7 +84,7 @@
             },
             "initialView":"${Parameters['initialView']!'timeGridWeek'}",
             "locale": "zh-cn",
-            "initialDate": "${b.now?string("yyyy-MM-dd")}",
+            "initialDate": "${beginOn?string("yyyy-MM-dd")}",
             "navLinks": true,
             "editable": false,
             "allDaySlot":false,

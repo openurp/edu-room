@@ -2,7 +2,6 @@
 [@b.head/]
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
-[#--    bar.addItem("教室申请",action.add());--]
     bar.addItem("${b.text('action.edit')}",action.edit());
     bar.addItem("${b.text('action.delete')}",action.remove());
   [/@]
@@ -28,7 +27,7 @@
       [/#if]
     [/@]
     [@b.col property="space.campus.name" title="校区" width="5%"/]
-    [@b.col property="borrower.applicant" title="借用人" width="10%"/]
+    [@b.col property="applicant.user.name" title="借用人" width="10%"/]
     [@b.col property="activity.attendanceNum" title="人数" width="5%"/]
     [@b.col property="applyAt" title="申请时间" width="10%"]${(roomApply.applyAt?string("yyyy-MM-dd HH:mm"))?default("")}[/@]
   [/@]

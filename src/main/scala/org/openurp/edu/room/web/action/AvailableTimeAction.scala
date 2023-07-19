@@ -17,13 +17,14 @@
 
 package org.openurp.edu.room.web.action
 
-import org.beangle.commons.lang.Strings
+import org.beangle.commons.lang.{Enums, Strings}
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Campus, Project}
+import org.openurp.edu.room.model.CycleTime.CycleTimeType
 import org.openurp.edu.room.model.{CycleTime, RoomAvailableTime}
 import org.openurp.starter.web.support.ProjectSupport
 
@@ -107,13 +108,13 @@ class AvailableTimeAction extends RestfulAction[RoomAvailableTime] with ProjectS
     }
   }
 
-  def getTimes(): mutable.Buffer[WeekTime] = {
+  def getTimes(): List[WeekTime] = {
     val cycleDate = new CycleTime
     getInt("cycleTime.cycleCount").foreach(cycleCount => {
       cycleDate.cycleCount = cycleCount
     })
     getInt("cycleTime.cycleType").foreach(cycleType => {
-      cycleDate.cycleType = cycleType
+      cycleDate.cycleType = Enums.of(classOf[CycleTimeType],cycleType).get
     })
     getDate("cycleTime.beginOn").foreach(dateBegin => {
       cycleDate.beginOn = dateBegin
@@ -127,7 +128,7 @@ class AvailableTimeAction extends RestfulAction[RoomAvailableTime] with ProjectS
     get("endAt").foreach(endAtContent => {
       cycleDate.endAt = HourMinute.apply(endAtContent)
     })
-    cycleDate.convert
+    cycleDate.convert()
   }
 
   def roomAjax(): View = {

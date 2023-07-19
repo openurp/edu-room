@@ -15,11 +15,11 @@
 <table class="tableStyle">
     <tr>
       <td class="title" width="12%" >借用人</td>
-        <td width="20%">${roomApply.borrower.applicant!}</td>
+        <td width="20%">${roomApply.applicant.user!}</td>
         <td class="title" width="13%">借用单位</td>
-    <td width="21%">${roomApply.borrower.department.name}</td>
+    <td width="21%">${roomApply.applicant.auditDepart.name}</td>
       <td class="title" width="13%">联系方式</td>
-    <td width="21%">${(roomApply.borrower.mobile)!}</td>
+    <td width="21%">${(roomApply.applicant.mobile)!}</td>
   </tr>
   <tr>
       <td class="title">教学楼</td>

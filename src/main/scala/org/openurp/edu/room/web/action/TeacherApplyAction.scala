@@ -30,7 +30,7 @@ import org.openurp.base.edu.model.{CourseUnit, Teacher, TimeSetting}
 import org.openurp.base.model.{Campus, Project, Semester, User}
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.clazz.service.CourseTableStyle
-import org.openurp.edu.room.model.{RoomApply, RoomApplyDepartCheck, TimeRequest, WeekTimeBuilder}
+import org.openurp.edu.room.model.{RoomApply, TimeRequest, WeekTimeBuilder}
 import org.openurp.starter.web.support.{ProjectSupport, TeacherSupport}
 
 import java.time.temporal.ChronoUnit
@@ -157,7 +157,6 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
     })
 
     if (0 >= roomApply.space.unitAttendance) roomApply.space.unitAttendance = roomApply.activity.attendanceNum
-    roomApply.time.calcMinutes()
     roomApply.applyAt = Instant.now()
     roomApply.applyBy = getUser
     roomApply.school = getUser.school
@@ -209,16 +208,16 @@ class TeacherApplyAction extends TeacherSupport, EntityAction[RoomApply] {
     } else {
       try {
         saveOrUpdate(roomApply)
-        val departCheck = roomApply.departCheck match {
-          case Some(value) => value
-          case None => new RoomApplyDepartCheck
-        }
-        departCheck.roomApply = roomApply
-        departCheck.approved = true
-        departCheck.checkedAt = Instant.now()
-        departCheck.checkedBy = getUser
-        saveOrUpdate(departCheck)
-        roomApply.departCheck = Option(departCheck)
+//        val departCheck = roomApply.departCheck match {
+//          case Some(value) => value
+//          case None => new RoomApplyDepartCheck
+//        }
+//        departCheck.roomApply = roomApply
+//        departCheck.approved = true
+//        departCheck.checkedAt = Instant.now()
+//        departCheck.checkedBy = getUser
+//        saveOrUpdate(departCheck)
+//        roomApply.departCheck = Option(departCheck)
         saveOrUpdate(roomApply)
         redirect("search", "info.save.success")
       }

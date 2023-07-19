@@ -6,15 +6,15 @@
     <table class="infoTable" align="center" width="100%">
       <tr>
         <td class="title" align="right" width="15%" >&nbsp;借用人：</td>
-        <td width="35%">${roomApply.borrower.applicant!}</td>
+        <td width="35%">${roomApply.applicant.user!}</td>
         <td class="title" align="right" width="15%">&nbsp;经办人姓名：</td>
         <td width="35%">${roomApply.applyBy.name} 填表申请时间：${roomApply.applyAt?string('yyyy-MM-dd HH:mm:ss')}</td>
       </tr>
       <tr>
         <td class="title">&nbsp;归口部门：</td>
-        <td>${roomApply.borrower.department.name}</td>
+        <td>${roomApply.applicant.auditDepart.name}</td>
         <td class="title" align="right" >&nbsp;联系方式：</td>
-        <td>${roomApply.borrower.mobile!}</td>
+        <td>${roomApply.applicant.mobile!}</td>
       </tr>
       <tr>
         <td class="title">活动类型：</td>
