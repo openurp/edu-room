@@ -1,6 +1,8 @@
-<style>
-
-</style>
+<script>
+  function validateMobile(elem){
+    return /^1(3[0-9]|4[01456879]|5[0-3,5-9]|6[2567]|7[0-8]|8[0-9]|9[0-3,5-9])\d{8}$/.test(jQuery(elem).val())
+  }
+</script>
   [@b.toolbar title="教室借用申请"/]
   [#assign capacity = 0/]
   [#list classrooms as r]
@@ -27,7 +29,7 @@
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型"/]
     [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
-    [@b.textfield name="apply.applicant.mobile" label="联系手机" required="true"/]
+    [@b.textfield name="apply.applicant.mobile" label="联系手机" required="true" check="assert(validateMobile, '请填写正确的手机号码')"/]
     [@b.formfoot]
       [@b.submit value="提交"/]
     [/@]

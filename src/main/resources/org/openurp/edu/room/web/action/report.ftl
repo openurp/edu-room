@@ -1,5 +1,7 @@
 [@b.head/]
-    <table id="myBar" width="100%"></table>
+    [@b.toolbar title="教室借用凭证"]
+      bar.addPrint();
+    [/@]
     [#assign isStd = roomApply.applicant.user.category.name?contains('学生')/]
     <table style="font-size:14px;border-bottom:black 1px dotted" width="600px" align="center">
       <tr>
@@ -110,8 +112,4 @@
         <td height="80px">注：本回执由教学值班室汇总后交教务处存档</td>
       </tr>
     </table>
-    <script type="text/javascript">
-        var bar =new ToolBar("myBar","教室借用凭证",null,true,true);
-        bar.addPrint("<@msg.message key="action.print"/>");
-    </script>
 [@b.foot/]
