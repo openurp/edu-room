@@ -20,19 +20,15 @@
         <table id="viewTables" style="width: 100%;display: table;">
           <tr><td><img src="${b.static_url('bui','icons/16x16/actions/info.png')}" alt="info" class="toolbar-icon"/><em>教室申请菜单</em></td></tr>
           <tr><td style="font-size:0px"><img src="${b.static_url('bui','icons/16x16/actions/keyline.png')}" height="2" width="100%" alt="keyline"/></td></tr>
-               <tr>
-                 <td class="item-select" onclick="info(this,'${b.url("!search")}')">
-                 &nbsp;&nbsp;<image src="${b.static_url('bui','icons/16x16/actions/list.png')}" align="bottom"/>已借用
-                 </td>
-               </tr>
-               <tr>
-                 <td class="item-select" onclick="info(this,'${b.url("!searchRooms")}')">
-                 &nbsp;&nbsp;<image src="${b.static_url('bui','icons/16x16/actions/list.png')}"/>开始借用</td>
-               </tr>
-               <tr>
-                 <td class="item-select" onclick="info(this,'${b.url("free")}')">
-                 &nbsp;&nbsp;<image src="${b.static_url('bui','icons/16x16/actions/list.png')}"/>空闲教室</td>
-               </tr>
+          <tr>
+            <td class="item-select" onclick="info(this,'${b.url("!search")}')">&nbsp;&nbsp;<i class="fa-solid fa-list"></i>&nbsp;已借用</td>
+          </tr>
+          <tr>
+            <td class="item-select" onclick="info(this,'${b.url("!searchRooms")}')">&nbsp;&nbsp;<i class="fa-solid fa-plus"></i>&nbsp;开始借用</td>
+          </tr>
+          <tr>
+            <td class="item-select" onclick="info(this,'${b.url("free")}')">&nbsp;&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;空闲教室</td>
+          </tr>
         </table>
       </form>
        </td>

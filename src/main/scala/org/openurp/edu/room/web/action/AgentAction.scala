@@ -31,6 +31,7 @@ import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 
 import java.time.{Instant, LocalDate}
+import scala.collection.immutable.TreeMap
 import scala.sys.error
 
 /** 代理借用
@@ -42,7 +43,10 @@ class AgentAction extends ApplyAction {
   override def applyForm(): View = {
     val time = getApplyTime()
     put("time", time)
-    put("activityTypes", codeService.get(classOf[ActivityType]).map(x => (x.id, x.name)).toMap)
+    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
+    val activityType = activityTypes.head
+    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
+    put("activityType", activityType)
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     put("classrooms", rooms)
     put("user", this.getUser)

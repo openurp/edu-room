@@ -3,7 +3,10 @@
   [@b.row]
     [@b.col title="序号" width="5%"]${room_index+1}[/@]
     [@b.col title="名称" width="30%" property="name"]
-      ${room.name}
+       [@b.a target="_blank" href="occupancy!building?id="+((room.building.id)!0) +"&classroomId="+room.id + "&beginOn="+Parameters['time.beginOn']]
+          ${room.name} [#if !room.roomNo??]<sup>虚拟</sup>[/#if]
+       [/@]
+       &nbsp;
       <a href="javascript:void(0)" onclick="toggleRoom(this,'${room.id}','${room.name}',${room.courseCapacity});return false;" class="btn btn-sm btn-outline-primary pt-0 pb-0">选择</a>
     [/@]
     [@b.col title="校区" width="15%" property="campus.name"/]

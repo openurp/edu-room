@@ -29,6 +29,7 @@ import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, RestfulAction}
 import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
 import org.openurp.base.model.*
+import org.openurp.base.service.UserCategories
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.model.*
@@ -38,6 +39,7 @@ import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDate, ZoneId}
+import scala.collection.immutable.TreeMap
 import scala.collection.mutable
 
 class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport {
@@ -53,16 +55,31 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     q.where("b.endOn is null")
     put("buildings", entityDao.search(q))
     put("roomTypes", codeService.get(classOf[ClassroomType]))
+    val applicant = getUser
+    if (Set(UserCategories.Teacher, UserCategories.Student).contains(applicant.category.id)) {
+      put("beginOn", LocalDate.now().plusDays(2))
+    } else {
+      put("beginOn", LocalDate.now())
+    }
     forward()
   }
 
   def applyForm(): View = {
     val time = getApplyTime()
+    val applicant = getUser
     put("time", time)
-    put("activityTypes", codeService.get(classOf[ActivityType]).map(x => (x.id, x.name)).toMap)
+
+    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
+    val activityType = if (applicant.category.id == UserCategories.Teacher) {
+      activityTypes.find(_.name.contains("课")).getOrElse(activityTypes.head)
+    } else {
+      activityTypes.head
+    }
+    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
+    put("activityType", activityType)
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     put("classrooms", rooms)
-    put("applicant", this.getUser)
+    put("applicant", applicant)
     forward()
   }
 

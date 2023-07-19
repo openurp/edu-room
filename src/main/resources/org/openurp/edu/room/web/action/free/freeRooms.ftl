@@ -13,8 +13,8 @@
       <td>${classroom_index+1}</td>
       <td>
         [#if logined]
-          [@b.a target="_blank" href="occupancy!classroom?id="+classroom.id+"&beginOn="+Parameters['date']]
-            ${classroom.name}[#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]
+          [@b.a target="_blank" href="occupancy!building?id="+((classroom.building.id)!0) +"&classroomId="+classroom.id + "&beginOn="+Parameters['date']]
+            ${classroom.name} [#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]
           [/@]
         [#else]
           ${classroom.name}[#if !classroom.roomNo??]<sup>虚拟</sup>[/#if]

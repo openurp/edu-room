@@ -84,6 +84,7 @@ class OccupancyAction extends ActionSupport with EntityAction[Classroom] {
       case Some(roomId) => roomId
       case None => if (rooms.isEmpty) 0 else rooms.head.id
     }
+    put("beginOn", getDate("beginOn").getOrElse(LocalDate.now))
     put("roomId", roomId)
     forward()
   }

@@ -21,7 +21,7 @@
     [#assign typeClassrooms = typeClassrooms + {r.roomType.name:([r] + typeClassrooms[r.roomType.name]![])} /]
   [/#list]
 
-<div class="container-fluid">
+<div class="container-fluid text-sm">
   <div class="row">
     <div class="card card-info card-primary card-outline col-3">
       <div class="card-header">
@@ -39,7 +39,7 @@
           <tr><td>
           <nav class="nav">
           [#list rooms?sort_by("name") as room]
-          [@b.a href="!classroom?id="+room.id target="calendar_info"]
+          [@b.a href="!classroom?id="+room.id+"&beginOn="+beginOn?string('yyyy-MM-dd') target="calendar_info"]
              ${room.name}&nbsp;
           [/@]
           [/#list]
@@ -52,7 +52,7 @@
         </table>
       </div>
     </div>
-    [@b.div href="!classroom?id="+roomId class="ajax_container col-9" id="calendar_info"/]
+    [@b.div href="!classroom?id="+roomId+"&beginOn="+beginOn?string('yyyy-MM-dd') class="ajax_container col-9" id="calendar_info"/]
   </div>
 </div>
 [@b.foot/]

@@ -10,7 +10,7 @@
     null,'fileName=教室借用信息'));
   [/@]
   [@b.row]
-    [@b.boxcol width="5%"/]
+    [@b.boxcol/]
     [@b.col property="activity.name" title="活动名称"]
       [#if roomApply.approved!false]
       [@b.a href="!report?roomApplyIds=${roomApply.id}" title="流水${roomApply.id}" target="_blank"]${(roomApply.activity.name?html)!}[/@]
@@ -24,12 +24,15 @@
       [#assign dateEnd=(roomApply.time.endOn)! /]
     [/#if]
     [@b.col title="借用时间" width="19%"]<span title="[#if dateBegin=dateEnd]${dateEnd}[#else]${dateBegin}~${dateEnd}[/#if]">${(roomApply.time)!}</span>[/@]
-    [@b.col title="使用教室" width="19%"]
+    [@b.col title="使用教室" width="18%"]
       [#if roomApply.rooms?size>0]
         [#list roomApply.rooms?if_exists as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
       [#elseif roomApply.space.roomComment??]
         <span style="font-style: italic;">拟借:${roomApply.space.roomComment!}</span>
       [/#if]
+    [/@]
+    [@b.col property="applicant.user.department.name" title="借用人部门"  width="10%"]
+      ${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}
     [/@]
     [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="12%"]
       [#if ((roomApply.applyBy.name)!'')==((roomApply.applicant.user.name)!'')]${roomApply.applyBy.name}

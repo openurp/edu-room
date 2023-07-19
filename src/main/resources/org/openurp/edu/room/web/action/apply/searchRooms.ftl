@@ -5,7 +5,7 @@
     [@b.radios name="applyCount" items={'1':'单次借用','2':'多次借用'} label="借用次数" value="1" onclick="showApplyRange(this);"/]
     [@b.field label="借用日期" required="true"]
         <input type="text" title="起始日期" readOnly="readOnly" id="beginOn" name="time.beginOn" class="Wdate"
-           onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
+           onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'${beginOn?string('yyyy-MM-dd')}'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
         <div id="dateRangeZone" style="display:none"> ~
         <input type="text" title="结束日期" readOnly="readOnly" id="endOn" name="time.endOn" class="Wdate"
                    onFocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
