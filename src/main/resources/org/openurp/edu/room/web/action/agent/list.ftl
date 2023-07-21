@@ -2,13 +2,18 @@
 [@b.head/]
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
-    bar.addItem("${b.text('action.edit')}",action.edit());
+    //bar.addItem("${b.text('action.edit')}",action.edit());
+    bar.addItem("${b.text('action.info')}",action.info());
     bar.addItem("${b.text('action.delete')}",action.remove());
   [/@]
   [@b.row]
     [@b.boxcol/]
     [@b.col property="activity.name" title="活动名称"]
-      [@b.a href="!info?id=${roomApply.id}"]${(roomApply.activity.name)?default("")}[/@]
+      [#if roomApply.approved!false]
+        [@b.a href="!report?id=${roomApply.id}" target="_blank"]${(roomApply.activity.name)?default("")}[/@]
+      [#else]
+        [@b.a href="!info?id=${roomApply.id}"]${(roomApply.activity.name)?default("")}[/@]
+      [/#if]
     [/@]
     [@b.col property="activity.activityType.name" title="活动类型" width="7%"/]
     [#if roomApply??]
@@ -21,7 +26,7 @@
       [#list roomApply.rooms?if_exists as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
       [#else]
       <font color="red">
-      [#if roomApply.isApproved??]${roomApply.isApproved?string('审核通过','审核不通过')}
+      [#if roomApply.approved??]${roomApply.approved?string('审核通过','审核不通过')}
       [#else]待审核[/#if]
       </font>
       [/#if]

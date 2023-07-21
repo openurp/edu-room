@@ -1,19 +1,28 @@
 [#ftl]
 [@b.head/]
+<style>
+.limit_line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
     bar.addItem("${b.text('action.info')}", action.info());
     bar.addItem("审核分配", action.single('applySetting'), "update.png");
-    //bar.addItem("${b.text('action.edit')}",  action.single('editApply'));
     bar.addItem("${b.text('action.delete')}", action.remove());
-    bar.addItem("${b.text("action.export")}",action.exportData("activity.name:活动名称,activity.activityType.name:活动类型,activity.speaker:主讲人及内容,activity.attendance:出席对象,activity.attendanceNum:出席总人数,space.campus.name:借用校区,space.roomComment:其他要求,applicant.user:借用人,applyAt:提交申请时间,time:申请占用时间,departCheck.approved:归口审核,departCheck.checkedBy.name:归口审核人,departCheck.checkedAt:归口审核时间,finalCheck.approved:物管审核,finalCheck.checkedBy.name:物管审核人,finalCheck.checkedAt:物管审核时间,space.requireMultimedia:是否使用多媒体设备",
+    bar.addItem("${b.text("action.export")}",action.exportData("activity.name:活动名称,activity.activityType.name:活动类型,"+
+                "time:申请占用时间,rooms:借用教室,space.campus.name:借用校区,activity.attendanceNum:出席总人数,"+
+                "space.requireMultimedia:是否使用多媒体设备,space.roomComment:教室要求,applicant.user.name:借用人,applicant.mobile:联系手机,"+
+                "applyAt:提交申请时间,approvedAt:审核时间,applyBy.name:借用人",
     null,'fileName=教室借用信息'));
   [/@]
   [@b.row]
     [@b.boxcol/]
     [@b.col property="activity.name" title="活动名称"]
       [#if roomApply.approved!false]
-      [@b.a href="!report?roomApplyIds=${roomApply.id}" title="流水${roomApply.id}" target="_blank"]${(roomApply.activity.name?html)!}[/@]
+      [@b.a href="!report?id=${roomApply.id}" title="流水${roomApply.id}" target="_blank"]${(roomApply.activity.name?html)!}[/@]
       [#else]
       [@b.a href="!info?id=${roomApply.id}" title="流水${roomApply.id}"]${(roomApply.activity.name?html)!}[/@]
       [/#if]
@@ -32,7 +41,7 @@
       [/#if]
     [/@]
     [@b.col property="applicant.user.department.name" title="借用人部门"  width="10%"]
-      ${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}
+      <div title="${roomApply.applicant.user.department.name}" class="limit_line">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
     [/@]
     [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="12%"]
       [#if ((roomApply.applyBy.name)!'')==((roomApply.applicant.user.name)!'')]${roomApply.applyBy.name}

@@ -20,34 +20,48 @@ package org.openurp.edu.room.web.action
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.data.transfer.exporter.ExportContext
 import org.beangle.security.Securities
+import org.beangle.template.freemarker.ProfileTemplateLoader
+import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.action.ExportSupport
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Project, User}
 import org.openurp.code.edu.model.ClassroomType
+import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
+import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
 
 import java.time.Instant
 import scala.sys.error
 
-class ApproveAction extends DepartApproveAction {
+class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
 
   var roomApplyService: RoomApplyService = _
 
   def report(): View = {
-    val ids = getLongIds("roomApply")
-    val applies = entityDao.find(classOf[RoomApply], ids).filter(e => (e.approved != null && e.approved.get))
-    put("applies", applies)
-    put("project", getProject)
-    forward()
+    val id = getLongId("roomApply")
+    val apply = entityDao.get(classOf[RoomApply], id)
+    put("roomApply", apply)
+    ProfileTemplateLoader.setProfile(apply.school.id)
+    forward("../report")
   }
 
   override def search(): View = {
     val builder = getQueryBuilder
-    //if (Strings.isEmpty(get("lookContent").orNull)) builder.where("roomApply.departApproved = true")
+    //builder.where("roomApply.departApproved = true")
     put("roomApplies", entityDao.search(builder))
+    forward()
+  }
+
+  @mapping(value = "{id}")
+  override def info(@param("id") id: String): View = {
+    val apply = entityDao.get(classOf[RoomApply], id.toLong)
+    put("roomApply", apply)
+    put("roomApplyLogs", entityDao.findBy(classOf[RoomApplyAuditLog], "roomApply", apply))
     forward()
   }
 
@@ -59,18 +73,28 @@ class ApproveAction extends DepartApproveAction {
 
     val id = getLongId("roomApply")
     if (0 == id) error("error.parameters.needed")
-    val roomApply = entityDao.get(classOf[RoomApply], id)
+    val apply = entityDao.get(classOf[RoomApply], id)
     put("roomTypes", getCodes(classOf[ClassroomType]))
-    get("roomIds").foreach(roomIdStr => {
-      if (roomIdStr.length > 0) {
-        val roomIds = Strings.splitToLong(roomIdStr)
-        if (null != roomIds && roomIds.length > 0) {
-          val rooms = entityDao.find(classOf[Classroom], roomIds)
-          roomApply.rooms.++=(rooms)
+
+    get("roomIds") match
+      case Some(roomIdStr) =>
+        if (roomIdStr.nonEmpty) {
+          val roomIds = Strings.splitToLong(roomIdStr)
+          if (null != roomIds && roomIds.nonEmpty) {
+            val rooms = entityDao.find(classOf[Classroom], roomIds)
+            apply.rooms ++= rooms
+          }
         }
-      }
-    })
-    put("roomApply", roomApply)
+      case None =>
+        apply.space.roomComment foreach { roomComment =>
+          Strings.split(roomComment) foreach { rc =>
+            val query = OccupancyUtils.buildFreeroomQuery(apply.time.times)
+            query.where("room.campus=:campus", apply.space.campus)
+            query.where("room.name=:name", rc)
+            apply.rooms ++= entityDao.search(query)
+          }
+        }
+    put("roomApply", apply)
     forward()
   }
 
@@ -80,7 +104,7 @@ class ApproveAction extends DepartApproveAction {
   def approve(): View = {
     val roomApply = populateEntity(classOf[RoomApply], "roomApply")
     get("roomIds") match {
-      case Some(roomIdStr) => {
+      case Some(roomIdStr) =>
         val roomIds = Strings.splitToLong(roomIdStr)
         val times = roomApply.time.times
         val builder = OccupancyUtils.buildFreeroomQuery(times)
@@ -92,25 +116,18 @@ class ApproveAction extends DepartApproveAction {
         val rooms = entityDao.find(classOf[Classroom], roomIds)
         if (roomApplyService.approve(roomApply, getUser, rooms)) redirect("search", "info.action.success")
         else redirect("search", "info.action.failure")
-      }
-      case None => {
+      case None =>
         roomApply.rooms.clear()
         roomApply.approved = null
         entityDao.saveOrUpdate(roomApply)
         redirect("search", "info.action.success")
-      }
     }
   }
 
   def getUser: User = {
     val builder = OqlBuilder.from(classOf[User], "user")
     builder.where("user.code=:code", Securities.user)
-    val users = entityDao.search(builder)
-    if (users.isEmpty) {
-      null
-    } else {
-      users.head
-    }
+    entityDao.search(builder).headOption.orNull
   }
 
   def freeRooms(): View = {
@@ -118,7 +135,7 @@ class ApproveAction extends DepartApproveAction {
     if (0 == roomApplyId) error("error.parameters.needed")
     val apply = entityDao.get(classOf[RoomApply], roomApplyId)
     val query = OccupancyUtils.buildFreeroomQuery(apply.time.times)
-    if (null != apply.space.campus) query.where("room.campus=:campus", apply.space.campus)
+    query.where("room.campus=:campus", apply.space.campus)
     populateConditions(query, "room.capacity")
     getInt("room.capacity") match {
       case Some(capacity) => query.where("room.capacity>=:capacity", capacity)
@@ -140,28 +157,25 @@ class ApproveAction extends DepartApproveAction {
   def cancel(): View = {
     val roomApplies = entityDao.find(classOf[RoomApply], getLongIds("roomApply"))
     if (roomApplies.isEmpty) error("error.parameters.needed")
-    roomApplies.foreach(roomApply => {
-      roomApply.rooms.clear()
-      saveOrUpdate(roomApply)
-      //      val finalCheck = roomApply.finalCheck match {
-      //        case Some(value) => value
-      //        case None => new RoomApplyFinalCheck
-      //      }
-      //      finalCheck.roomApply = roomApply
-      //      finalCheck.approved = false
-      //      finalCheck.checkedAt = Instant.now()
-      //      finalCheck.checkedBy = getUser
-      //      finalCheck.opinions = get("roomApply.approvedRemark")
-      //      saveOrUpdate(finalCheck)
-      //      roomApply.finalCheck = Option(finalCheck)
-      roomApply.approved = Option(false)
-    })
-    try entityDao.saveOrUpdate(roomApplies)
-    catch {
-      case e: Exception =>
-        return redirect("search", "info.action.failure")
+    roomApplies.foreach { roomApply =>
+      roomApplyService.reject(roomApply, getUser, get("approvedOpinions", "--"))
     }
     redirect("search", "info.action.success")
   }
 
+  protected override def removeAndRedirect(applies: Seq[RoomApply]): View = {
+    val removed = applies.filter(a => a.rooms.isEmpty)
+    if (removed.nonEmpty) {
+      removed foreach { r => roomApplyService.remove(r) }
+    }
+    if removed.size < applies.size then
+      redirect("search", s"成功删除${removed.size}个申请(已经审批的，需要取消审批后才能删除)")
+    else
+      redirect("search", "info.remove.success")
+  }
+
+  protected override def configExport(context: ExportContext): Unit = {
+    super.configExport(context)
+    context.extractor = new RoomApplyPropertyExtractor()
+  }
 }

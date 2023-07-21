@@ -23,9 +23,14 @@
           <tr>
             <td class="item-select" onclick="info(this,'${b.url("!search")}')">&nbsp;&nbsp;<i class="fa-solid fa-list"></i>&nbsp;已申请</td>
           </tr>
+          [#if setting??]
           <tr>
             <td class="item-select" onclick="info(this,'${b.url("!searchRooms")}')">&nbsp;&nbsp;<i class="fa-solid fa-plus"></i>&nbsp;开始申请</td>
           </tr>
+          <tr>
+            <td class="item-select" onclick="info(this,'${b.url("!setting")}')">&nbsp;&nbsp;<i class="fa-solid fa-flag"></i>&nbsp;借用须知</td>
+          </tr>
+          [/#if]
           <tr>
             <td class="item-select" onclick="info(this,'${b.url("free")}')">&nbsp;&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;空闲教室</td>
           </tr>

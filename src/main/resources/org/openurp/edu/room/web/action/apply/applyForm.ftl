@@ -29,6 +29,7 @@
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型" value=activityType.id/]
     [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
+    [@b.textfield name="apply.space.unitAttendance" value=unitAttendance label="最小教室容量" required="true" comment="0表示不要求"/]
     [@b.textfield name="apply.applicant.mobile" label="联系手机" required="true" check="assert(validateMobile, '请填写正确的手机号码')"/]
     [@b.formfoot]
       [@b.submit value="提交"/]

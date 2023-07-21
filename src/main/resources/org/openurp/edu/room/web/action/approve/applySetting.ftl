@@ -5,25 +5,26 @@
 [#assign barTitle][#if roomApply.rooms?exists && (roomApply.rooms)?size == 0]批准申请,分配教室[#else]${b.text('action.edit')}教室分配[/#if][/#assign]
 [@b.messages slash="3"/]
 [@b.toolbar title=barTitle]
-    [#if roomApply.rooms?exists && (roomApply.rooms)?size == 0]
-      bar.addItem("批准审核通过", "approve()");
-    [#else]
-      bar.addItem("保存修改", "approve()", "save.png");
-    [/#if]
+  [#if roomApply.rooms?exists && (roomApply.rooms)?size != 0]
+    bar.addItem("批准审核通过", "approve()");
+  [/#if]
   bar.addItem("审核不通过", "cancelApply()", "edit-delete.png");
   bar.addBack();
 [/@]
 [@b.form action="!approve" name="actionForm"]
   <input type="hidden" name="roomApply.id" value="${roomApply.id}"/>
-  <table class="formTable" align="center" width="100%">
+  [#if roomApply.space.roomComment??]
+  <input type="hidden" name="room.name" value="${roomApply.space.roomComment}"/>
+  [/#if]
+  <table class="infoTable" align="center" width="100%">
     <tr>
       <td class="title" align="right" width="15%"><font color="red">*</font>&nbsp;借用人：</td>
-      <td width="35%">${(roomApply.applicant.user)!}</td>
+      <td width="35%">${roomApply.applicant.user.code} ${roomApply.applicant.user.name} ${roomApply.applicant.user.department.name}</td>
       <td class="title" align="right" width="15%"><font color="red">*</font>&nbsp;经办人姓名：</td>
       <td width="35%">${roomApply.applyBy.name} 填表申请时间：${roomApply.applyAt?string('yyyy-MM-dd HH:mm:ss')}</td>
     </tr>
     <tr>
-      <td class="title"><font color="red">*</font>&nbsp;归口部门：</td>
+      <td class="title"><font color="red">*</font>&nbsp;审核部门：</td>
       <td>${roomApply.applicant.auditDepart.name}</td>
       <td class="title" align="right">&nbsp;联系方式：</td>
       <td>${(roomApply.applicant.mobile)!}</td>
@@ -38,21 +39,19 @@
       <td class="title"><font color="red">*</font>&nbsp;借用校区：</td>
       <td>${(roomApply.space.campus.name)!}</td>
       <td class="title" align="right"><font color="red">*</font>&nbsp;出席总人数：</td>
-      <td>${roomApply.activity.attendanceNum}(每个教室${roomApply.space.unitAttendance})</td>
+      <td>${roomApply.activity.attendanceNum} [#if roomApply.space.unitAttendance>0](每个教室${roomApply.space.unitAttendance})[/#if]</td>
     </tr>
     <tr>
       <td class="title" align="right"><font color="red">*</font>&nbsp;是否使用多媒体设备：</td>
       <td>${roomApply.space.requireMultimedia?string('是','否')}</td>
-      <td class="title">其它要求：</td>
+      <td class="title">教室要求：</td>
       <td>${(roomApply.space.roomComment)!}</td>
     </tr>
       [#assign dateBegin=(roomApply.time.beginOn)! /]
       [#assign dateEnd=(roomApply.time.endOn)! /]
     <tr>
       <td class="title" align="right">&nbsp;使用日期：</td>
-      <td colspan="3"><span
-                title="[#if dateBegin=dateEnd]${dateEnd}[#else]${dateBegin}~${dateEnd}[/#if]">${(roomApply.time)!}</span>
-      </td>
+      <td colspan="3"><span title="[#if dateBegin=dateEnd]${dateEnd}[#else]${dateBegin}~${dateEnd}[/#if]">${(roomApply.time)!}</span></td>
     </tr>
     <tr>
       <td class="title" align="right">&nbsp;分配教室：</td>
@@ -128,7 +127,7 @@
       alert("请不要超过200个字");
       return promptReason(form);
     }
-    bg.form.addInput(form, "roomApply.approvedRemark", reason);
+    bg.form.addInput(form, "approvedOpinions", reason);
     return true;
   }
 </script>

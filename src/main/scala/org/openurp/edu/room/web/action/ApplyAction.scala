@@ -32,7 +32,9 @@ import org.openurp.base.model.*
 import org.openurp.base.service.UserCategories
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.clazz.service.CourseTableStyle
+import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.*
+import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 import org.openurp.edu.room.web.helper.ApplyTime
 import org.openurp.starter.web.support.ProjectSupport
@@ -46,7 +48,10 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
 
   var entityDao: EntityDao = _
 
+  var roomApplyService: RoomApplyService = _
+
   def index(): View = {
+    put("setting", roomApplyService.getSetting(null))
     forward()
   }
 
@@ -55,9 +60,11 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     q.where("b.endOn is null")
     put("buildings", entityDao.search(q))
     put("roomTypes", codeService.get(classOf[ClassroomType]))
+    val setting = roomApplyService.getSetting(null).get
+    put("setting", setting)
     val applicant = getUser
     if (Set(UserCategories.Teacher, UserCategories.Student).contains(applicant.category.id)) {
-      put("beginOn", LocalDate.now().plusDays(2))
+      put("beginOn", LocalDate.now().plusDays(setting.daysBeforeApply))
     } else {
       put("beginOn", LocalDate.now())
     }
@@ -75,6 +82,7 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     } else {
       activityTypes.head
     }
+    put("unitAttendance",getInt("room.capacity",0))
     put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
     put("activityType", activityType)
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
@@ -107,16 +115,11 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     apply.applicant.user = user
 
     val activity = apply.activity
-    activity.speaker = "--"
-    activity.attendance = "--"
 
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     apply.space.roomComment = Some(rooms.map(_.name).mkString(","))
     apply.space.campus = rooms.head.campus
-    apply.school = user.school
-    apply.applyBy = user
-    apply.applyAt = Instant.now
-    entityDao.saveOrUpdate(apply)
+    roomApplyService.submit(apply, user)
     redirect("search", "借用申请提交完成")
   }
 
@@ -124,7 +127,7 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     val time = getApplyTime()
     val weektimes = time.toWeektimes()
     val query = OccupancyUtils.buildFreeroomQuery(weektimes)
-    query.where("room.roomNo is not null")
+    query.where("room.roomNo is not null") //虚拟教室不能借用
     populateConditions(query, "room.capacity")
     getInt("room.capacity") foreach { capacity =>
       query.where("room.courseCapacity>=:capacity", capacity)
@@ -141,8 +144,9 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
 
   @mapping(value = "{id}")
   def info(@param("id") id: String): View = {
-    val entityType = entityDao.domain.getEntity(entityClass).get
-    put(simpleEntityName, getModel[RoomApply](entityType, convertId(entityType, id)))
+    val apply = entityDao.get(classOf[RoomApply], id.toLong)
+    put("roomApply", apply)
+    put("roomApplyLogs", entityDao.findBy(classOf[RoomApplyAuditLog], "roomApply", apply))
     forward()
   }
 
@@ -161,46 +165,28 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
   override def getQueryBuilder: OqlBuilder[RoomApply] = {
     val query = super.getQueryBuilder
     query.where("roomApply.applyBy=:me", getUser)
+    if (!query.hasOrderBy) query.orderBy("roomApply.applyAt desc")
     query
   }
 
-  def edit(roomApply: RoomApply): Unit = {
-    given project: Project = getProject
-
-    put("departments", getDeparts)
-    put("campuses", findInSchool(classOf[Campus]))
-    put("activityTypes", getCodes(classOf[ActivityType]))
-    put("timeSettings", getTimeSettings)
-    put("currentSemester", getSemester)
-    roomApply.applyBy = getUser
-
-    // 每个学期能够选择的教学周集合
-    val semesterWeeks = Collections.newMap[Semester, mutable.Set[Int]]
-    // 每个学期缺省的最大教学周
-    val defaultMaxWeeks = Collections.newMap[Semester, Int]
-
-    val applyAt = if (roomApply.applyAt == null) Instant.now else roomApply.applyAt
-    val applyOn = LocalDate.ofInstant(applyAt, ZoneId.systemDefault())
-    val semesters = getSemesters(applyOn)
-    semesters.foreach(s => {
-      val weekList = buildWeekList(s, null)
-      if (applyOn.isBefore(s.endOn) && applyOn.isAfter(s.beginOn)) {
-        val length = s.beginOn.until(applyOn, ChronoUnit.DAYS)
-        val startWeek = Math.ceil(length / 7.0).toInt + 1
-        val starts = Collections.newSet[Int]
-        for (i <- 1 until startWeek) {
-          starts.add(i)
-        }
-        weekList.--=(starts)
+  @mapping(method = "delete")
+  def remove(): View = {
+    val query = OqlBuilder.from(classOf[RoomApply], "apply")
+    query.where("apply.applyBy=:me", getUser)
+    query.where("apply.id in(:applyIds)", getLongIds("roomApply"))
+    val applies = entityDao.search(query)
+    var removed = 0
+    var reserved = 0
+    applies foreach { apply =>
+      if (apply.rooms.isEmpty) {
+        roomApplyService.remove(apply)
+        removed += 1
+      } else {
+        reserved += 1
       }
-      semesterWeeks.put(s, weekList)
-      defaultMaxWeeks.put(s, getWeeks(s))
-    })
-    put("tableStyle", CourseTableStyle.WEEK_TABLE)
-    put("CourseTableStyle", CourseTableStyle)
-    put("weekList", WeekDay.values)
-    put("semesterWeeks", semesterWeeks)
-    put("defaultMaxWeeks", defaultMaxWeeks)
+    }
+    if (removed == 0) redirect("search", "不能删除已经审批的教室")
+    else redirect("search", s"成功删除${removed}个教室申请")
   }
 
   def getUser: User = {
@@ -212,144 +198,8 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     }
   }
 
-  def getTimeSettings: Seq[TimeSetting] = {
-    val settingQuery = OqlBuilder.from(classOf[TimeSetting], "ts").where("ts.project=:project", getProject)
-    entityDao.search(settingQuery)
+  def setting(): View = {
+    put("setting", roomApplyService.getSetting(null))
+    forward()
   }
-
-  private def getWeeks(semester: Semester): Int = {
-    val length = semester.beginOn.until(semester.endOn, ChronoUnit.DAYS)
-    Math.ceil(length / 7.0).toInt
-  }
-
-  private def buildWeekList(semester: Semester, next: Semester): mutable.Set[Int] = {
-    val maxWeek = if (null != next) {
-      val length = semester.beginOn.until(next.beginOn, ChronoUnit.DAYS)
-      Math.ceil(length / 7.0).toInt
-    } else {
-      getWeeks(semester)
-    }
-    val weekList = Collections.newSet[Int]
-    for (i <- 1 to maxWeek) {
-      weekList.add(i)
-    }
-    weekList
-  }
-
-  def getSemesters(localDate: LocalDate): Seq[Semester] = {
-    val builder = OqlBuilder.from(classOf[Semester], "semester")
-    builder.where("semester.calendar.school=:school", getProject.school)
-    builder.where("semester.endOn >=:now", localDate)
-    builder.orderBy("semester.code desc")
-    entityDao.search(builder)
-  }
-
-  def buildApply(): RoomApply = {
-    val roomApply = populateEntity(classOf[RoomApply], "roomApply")
-    val semester = entityDao.get(classOf[Semester], getIntId("semester"))
-    val timeSetting = getTimeSettings.head
-    get("weekState").foreach(weekState => {
-      get("classUnit").foreach(classUnit => {
-        val timeRequest = buildApplyTimeByWeekState(timeSetting, semester, weekState, classUnit)
-        roomApply.time = timeRequest
-      })
-    })
-
-    if (0 >= roomApply.space.unitAttendance) roomApply.space.unitAttendance = roomApply.activity.attendanceNum
-    roomApply.applyAt = Instant.now()
-    roomApply.applyBy = getUser
-    roomApply.school = getUser.school
-    roomApply.activity.attendance = "--"
-    roomApply.activity.speaker = "--"
-    roomApply
-  }
-
-  def buildApplyTimeByWeekState(timeSetting: TimeSetting, semester: Semester, state: String, courseUnitString: String): TimeRequest = {
-    val weeks = Strings.splitToInt(state)
-    val maxUnitSize = timeSetting.units.size
-    val units = Strings.splitToInt(courseUnitString)
-    val builder = WeekTimeBuilder.on(semester)
-    var alltimes = Collections.newBuffer[WeekTime]
-    val unitMap = entityDao.findBy(classOf[CourseUnit], "setting", List(timeSetting)).map(e => (e.indexno, e)).toMap
-
-    units.indices.foreach(i => {
-      val weekId = units(i) / maxUnitSize + 1
-      val unitIndex = units(i) % maxUnitSize + 1
-      val times = builder.build(WeekDay.of(weekId), weeks)
-      unitMap.get(unitIndex).foreach(unit => {
-        times.foreach(time => {
-          time.beginAt = unit.beginAt
-          time.endAt = unit.endAt
-        })
-      })
-      alltimes.addAll(times)
-    })
-    alltimes = WeekTimeBuilder.mergeTimes(alltimes, 15)
-    var beginOn: LocalDate = null
-    var endOn: LocalDate = null
-    alltimes.foreach(timeUnit => {
-      if (null == beginOn || timeUnit.firstDay.isBefore(beginOn)) beginOn = timeUnit.firstDay
-      if (null == endOn || timeUnit.lastDay.isAfter(endOn)) endOn = timeUnit.lastDay
-    })
-    val timeRequest = new TimeRequest
-    timeRequest.times = alltimes
-    timeRequest.beginOn = beginOn
-    timeRequest.endOn = endOn
-    timeRequest.timeComment = get("timeComment")
-    timeRequest
-  }
-
-  def submitApply(): View = {
-    val roomApply = buildApply()
-    val days = roomApply.time.beginOn.toEpochDay - LocalDate.now.toEpochDay
-    if (days < 2) {
-      redirect("search", "请至少提前两天申请教室!")
-    } else {
-      try {
-        saveOrUpdate(roomApply)
-        //        val departCheck = roomApply.departCheck match {
-        //          case Some(value) => value
-        //          case None => new RoomApplyDepartCheck
-        //        }
-        //        departCheck.roomApply = roomApply
-        //        departCheck.approved = true
-        //        departCheck.checkedAt = Instant.now()
-        //        departCheck.checkedBy = getUser
-        //        saveOrUpdate(departCheck)
-        //        roomApply.departCheck = Option(departCheck)
-        saveOrUpdate(roomApply)
-        redirect("search", "info.save.success")
-      }
-      catch {
-        case e: Exception =>
-          logger.info("saveAndForwad failure", e)
-          redirect("search", "info.save.failure")
-      }
-    }
-  }
-
-  //  @mapping(method = "delete")
-  //  override def remove(): View = {
-  //    val idclass = entityDao.domain.getEntity(entityName).get.id.clazz
-  //    val entities: Seq[RoomApply] = getId(simpleEntityName, idclass) match {
-  //      case Some(entityId) => List(getModel[RoomApply](entityName, entityId))
-  //      case None => getModels[RoomApply](entityName, ids(simpleEntityName, idclass))
-  //    }
-  //    try {
-  //      entities.foreach(entity => {
-  //        entity.departCheck.foreach(departCheck => {
-  //          remove(departCheck)
-  //        })
-  //        entity.finalCheck.foreach(finalCheck => {
-  //          remove(finalCheck)
-  //        })
-  //      })
-  //      removeAndRedirect(entities)
-  //    } catch {
-  //      case e: Exception =>
-  //        logger.info("removeAndRedirect failure", e)
-  //        redirect("search", "info.delete.failure")
-  //    }
-  //  }
-
 }

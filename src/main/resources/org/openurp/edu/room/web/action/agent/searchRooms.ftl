@@ -18,9 +18,9 @@
     [/@]
     [@b.field label="借用时间" required="true"]
       <input type="text" title="起始时间" name="time.beginAt" id="beginAt" style='width:70px' value="" class="Wdate"
-             onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'${setting.beginAt}',maxDate:'#F{$dp.$D(\'endAt\')}'})" placeholder="HH:mm"/>
+             onFocus="WdatePicker({dateFmt:'HH:mm',maxDate:'#F{$dp.$D(\'endAt\')}'})" format="Time"  maxlength="5" placeholder="HH:mm"/>
          - <input type="text" title="结束时间" name="time.endAt"  id="endAt" value="" style='width:70px' class="Wdate"
-          onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'#F{$dp.$D(\'beginAt\')}',maxDate:'${setting.endAt}'})" maxlength="5" placeholder="HH:mm"/>
+          onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'#F{$dp.$D(\'beginAt\')}'})" maxlength="5" placeholder="HH:mm"/>
     [/@]
     [@b.select name="room.roomType.id" items=roomTypes label="教室类型" comment="以下条件，无要求可忽略"/]
     [@b.select name="room.building.id" items=buildings label="教学楼"/]

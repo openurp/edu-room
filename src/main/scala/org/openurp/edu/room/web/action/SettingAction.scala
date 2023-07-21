@@ -15,27 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.openurp.edu.room.service
+package org.openurp.edu.room.web.action
 
-import org.beangle.commons.collection.Collections
+import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{School, User}
+import org.openurp.base.model.School
 import org.openurp.edu.room.config.RoomApplySetting
-import org.openurp.edu.room.model.{Occupancy, RoomApply, RoomOccupyApp}
-import org.openurp.edu.room.util.OccupancyUtils
 
-import java.time.Instant
-import scala.collection.mutable
+class SettingAction extends RestfulAction[RoomApplySetting] {
+  override def indexSetting(): Unit = {
+    put("setting", entityDao.getAll(classOf[RoomApplySetting]).headOption.getOrElse(new RoomApplySetting))
+  }
 
-trait RoomApplyService {
-  def submit(roomApply: RoomApply, applyBy: User): Unit
+  override def search(): View = {
+    put("setting", entityDao.getAll(classOf[RoomApplySetting]).headOption)
+    forward("index")
+  }
 
-  def reject(roomApply: RoomApply, approveBy: User, reason: String): Unit
-
-  def approve(roomApply: RoomApply, approveBy: User, rooms: Seq[Classroom]): Boolean
-
-  def remove(roomApply: RoomApply): Unit
-
-  def getSetting(school: School): Option[RoomApplySetting]
+  override def saveAndRedirect(entity: RoomApplySetting): View = {
+    entity.school = entityDao.getAll(classOf[School]).head
+    super.saveAndRedirect(entity)
+  }
 }

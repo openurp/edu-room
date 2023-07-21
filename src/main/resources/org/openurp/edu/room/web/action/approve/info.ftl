@@ -1,2 +1,2 @@
 [#ftl]
-[#include "../departApprove/info.ftl"/]
+[#include "../apply/info.ftl"/]

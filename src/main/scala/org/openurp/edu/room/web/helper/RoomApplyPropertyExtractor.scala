@@ -15,26 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.openurp.edu.room.web.action
+package org.openurp.edu.room.web.helper
 
-import org.beangle.cdi.bind.BindModule
-import org.openurp.edu.room.service.RoomApplyService
-import org.openurp.edu.room.service.impl.RoomApplyServiceImpl
-import org.openurp.edu.room.util.OccupancyUtils
+import org.beangle.data.transfer.exporter.DefaultPropertyExtractor
+import org.openurp.edu.room.model.RoomApply
 
-class DefaultModule extends BindModule {
+class RoomApplyPropertyExtractor extends DefaultPropertyExtractor {
 
-  protected override def binding(): Unit = {
-    bind(classOf[AvailableTimeAction])
-    bind(classOf[OccupancyAction])
-    bind(classOf[ApplyAction])
-    bind(classOf[AgentAction])
-    bind(classOf[ApproveAction])
-    bind(classOf[DepartApproveAction])
-    bind(classOf[RoomApplyServiceImpl])
-    bind(classOf[FreeAction])
-
-    bind(classOf[SettingAction])
-    bind(classOf[ApplySearchAction])
+  override def getPropertyValue(target: Object, property: String): Any = {
+    property match {
+      case "rooms" => target.asInstanceOf[RoomApply].rooms.map(_.name).mkString(",")
+      case _ => super.getPropertyValue(target, property)
+    }
   }
 }

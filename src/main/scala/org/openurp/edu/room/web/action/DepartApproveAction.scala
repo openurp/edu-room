@@ -19,10 +19,12 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
-import org.beangle.data.dao.OqlBuilder
+import org.beangle.commons.lang.time.WeekTime
+import org.beangle.data.dao.{Conditions, OqlBuilder}
 import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.helper.QueryHelper
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Campus, Project}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
@@ -46,17 +48,16 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
     val builder = OqlBuilder.from(classOf[RoomApply], "roomApply")
     populateConditions(builder)
     builder.where("roomApply.school = :school", getProject.school)
-    val room = populateEntity(classOf[Classroom], "room")
-    if (Strings.isNotEmpty(room.name) && null != room.roomType) {
-      builder.where("exists(from roomApply.rooms m where room.name like :roomName and room.roomType =:roomType)", "%" + room.name + "%", room.roomType)
+    val roomConditions = QueryHelper.extractConditions(classOf[Classroom], "room", null)
+    if (roomConditions.nonEmpty) {
+      builder.where(s"exists(from roomApply.rooms as room where ${Conditions.toQueryString(roomConditions)})", roomConditions.flatMap(_.params))
     }
-    else if (Strings.isNotEmpty(room.name)) {
-      builder.where("exists(from roomApply.rooms room where room.name like :roomName)", "%" + room.name + "%")
+    getDate("occupyOn") foreach { occupyOn =>
+      val wt = WeekTime.of(occupyOn)
+      builder.where("exists(from roomApply.time.times t where t.startOn=:starton and bitand(t.weekstate,:weekstate)>0)",
+        wt.startOn, wt.weekstate)
     }
-    else if (null != room.roomType) {
-      builder.where("exists(from roomApply.rooms room where room.roomType =:roomType)", room.roomType)
-    }
-    get("lookContent").foreach(lookContent => lookContent match {
+    get("lookContent").foreach {
       case "1" =>
         builder.where("roomApply.departApproved = true")
         builder.where("roomApply.approved is null")
@@ -67,7 +68,16 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
         builder.where("roomApply.departApproved = true")
         builder.where("roomApply.approved = false")
       case "" =>
-    })
+    }
+    get("approved").foreach {
+      case "null" =>
+        builder.where("roomApply.approved is null")
+      case "0" =>
+        builder.where("roomApply.approved = false")
+      case "1" =>
+        builder.where("roomApply.approved = true")
+      case "" =>
+    }
     get(Order.OrderStr) foreach { orderClause =>
       builder.orderBy(orderClause)
     }
