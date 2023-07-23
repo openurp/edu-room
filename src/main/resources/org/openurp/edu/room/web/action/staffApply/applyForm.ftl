@@ -1,26 +1,4 @@
 [@b.head/]
-<script>
-  function validateMobile(elem){
-    return /^1(3[0-9]|4[01456879]|5[0-3,5-9]|6[2567]|7[0-8]|8[0-9]|9[0-3,5-9])\d{8}$/.test(jQuery(elem).val())
-  }
-  function checkMobile(elem){
-    var row = jQuery(elem).parent();
-    if(elem.value){
-      if(!validateMobile(elem)){
-        addError(row,"请正确填写手机号");
-      }else{
-        row.find("label.error").remove();
-      }
-    }else{
-      addError(row,"请填写手机号");
-    }
-  }
-  function addError(row,msg){
-    row.find("label.error").remove();
-    row.append('<label class="error">'+msg+'</label>');
-    return false;
-  }
-</script>
   [@b.toolbar title="教室借用申请"/]
   [#assign capacity = 0/]
   [#list classrooms as r]
@@ -48,9 +26,9 @@
     [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
     [@b.textfield name="apply.space.unitAttendance" value=unitAttendance label="最小教室容量" required="true" comment="0表示不要求"/]
-    [@b.field label="联系手机" required="true"]
-      <input name="apply.applicant.mobile" value="${applicant.mobile!}" onchange="checkMobile(this)">
+    [@b.cellphone name="apply.applicant.mobile" required="true" label="联系手机" value=applicant.mobile!]
       <input type='checkbox' name='saveMobile' id='saveMobile' ><label style='font-weight: normal;' for='saveMobile'>保存为常用号码</label>
+      [#if hasSmsSupport](申请通过后，该号码收到审批提醒，查看凭证)[/#if]
     [/@]
     [@b.formfoot]
       [@b.submit value="提交"/]

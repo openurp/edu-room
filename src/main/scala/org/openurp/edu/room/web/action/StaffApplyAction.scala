@@ -21,9 +21,11 @@ import org.beangle.commons.collection.{Collections, Order}
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.{HourMinute, WeekDay, WeekTime}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.ems.app.web.WebBusinessLogger
 import org.beangle.security.Securities
 import org.beangle.template.freemarker.ProfileTemplateLoader
 import org.beangle.web.action.annotation.{mapping, param}
+import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, RestfulAction}
@@ -34,7 +36,7 @@ import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.*
-import org.openurp.edu.room.service.RoomApplyService
+import org.openurp.edu.room.service.{RoomApplyService, SmsService}
 import org.openurp.edu.room.util.OccupancyUtils
 import org.openurp.edu.room.web.helper.ApplyTime
 import org.openurp.starter.web.support.ProjectSupport
@@ -51,6 +53,10 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
   var entityDao: EntityDao = _
 
   var roomApplyService: RoomApplyService = _
+
+  var businessLogger: WebBusinessLogger = _
+
+  var smsService: Option[SmsService] = None
 
   def index(): View = {
     put("setting", roomApplyService.getSetting(null))
@@ -95,6 +101,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     put("classrooms", rooms)
     put("applicant", applicant)
+    put("hasSmsSupport", smsService.nonEmpty)
     forward()
   }
 
@@ -132,6 +139,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
       user.mobile = Some(apply.applicant.mobile)
       entityDao.saveOrUpdate(user)
     }
+    businessLogger.info(s"提交教室借用申请(${apply.activity.name})", apply.id, ActionContext.current.params)
     redirect("search", "借用申请提交完成")
   }
 
@@ -196,6 +204,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     applies foreach { apply =>
       if (apply.rooms.isEmpty) {
         roomApplyService.remove(apply)
+        businessLogger.info(s"删除了教室借用申请(${apply.activity.name})", apply.id, ActionContext.current.params)
         removed += 1
       } else {
         reserved += 1

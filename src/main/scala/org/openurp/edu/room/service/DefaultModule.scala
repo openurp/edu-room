@@ -15,29 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.openurp.edu.room.web.action
+package org.openurp.edu.room.service
 
 import org.beangle.cdi.bind.BindModule
+import org.beangle.ems.app.EmsApp
 import org.openurp.edu.room.service.RoomApplyService
-import org.openurp.edu.room.service.impl.RoomApplyServiceImpl
+import org.openurp.edu.room.service.impl.{EcuplSmsServiceImpl, RoomApplyServiceImpl}
 import org.openurp.edu.room.util.OccupancyUtils
+
+import java.io.FileInputStream
 
 class DefaultModule extends BindModule {
 
   protected override def binding(): Unit = {
-    bind(classOf[AvailableTimeAction])
-    bind(classOf[OccupancyAction])
-    bind(classOf[StaffApplyAction])
-    bind(classOf[AgentAction])
-    bind(classOf[ApproveAction])
-    bind(classOf[DepartApproveAction])
-    bind(classOf[FreeAction])
+    bind(classOf[RoomApplyServiceImpl])
 
-    bind(classOf[SettingAction])
-    bind(classOf[ApplySearchAction])
+    EmsApp.getAppFile foreach { file =>
+      val is = new FileInputStream(file)
+      val app = scala.xml.XML.load(is)
+      var base: String = null
+      var appId: String = null
+      var appPassword: String = null
+      (app \\ "sms") foreach { e =>
+        base = (e \ "@base").text.trim
+        appId = (e \ "@appId").text.trim
+        appPassword = (e \ "@appPassword").text.trim
+      }
+      is.close()
+      if (base != null && null != appId && null != appPassword)
+        bind(classOf[EcuplSmsServiceImpl]).constructor(base, appId, appPassword)
+    }
 
-    bind(classOf[DepartScopeAction])
-    bind(classOf[DepartAgentAction])
-    bind(classOf[ApplyInfoAction])
   }
 }

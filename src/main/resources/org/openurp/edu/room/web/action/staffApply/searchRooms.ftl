@@ -4,23 +4,22 @@
   [@b.form name="roomSearchForm" action="!freeRooms" theme="list" target="freeRoomList"]
     [@b.radios name="applyCount" items={'1':'单次借用','2':'多次借用'} label="借用次数" value="1" onclick="showApplyRange(this);"/]
     [@b.field label="借用日期" required="true"]
-        <input type="text" title="起始日期" readOnly="readOnly" id="beginOn" name="time.beginOn" class="Wdate"
+      <input type="text" title="起始日期" readOnly="readOnly" id="beginOn" name="time.beginOn" class="Wdate"
            onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'${beginOn?string('yyyy-MM-dd')}'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
-        <div id="dateRangeZone" style="display:none"> ~
+      <div id="dateRangeZone" style="display:none"> ~
         <input type="text" title="结束日期" readOnly="readOnly" id="endOn" name="time.endOn" class="Wdate"
                    onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'beginOn\')}'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
-        每
-        <select name="time.cycle" style="width:50px">
-          <option value="1">天</option>
-          <option value="7">周</option>
-        </select>
-        </div>
+        <input name="time.cyle" value="1" type="radio" checked="checked"  id="cyle1"><label for="cyle1" style="font-weight:normal;">每天</label>
+        <input name="time.cyle" value="7" type="radio" id="cyle7"><label for="cyle7" style="font-weight:normal;">每周</label>
+      </div>
     [/@]
     [@b.field label="借用时间" required="true"]
       [#if timeSettings?size >0][#assign timeSetting= timeSettings?first][/#if]
       [#if timeSetting??]
-      <input name="timeSettingStyle" value="0" type="radio" checked="checked" onclick="selectTimeStyle(this)" id="style0"><label for="style0">自定义</label>
-      <input name="timeSettingStyle" value="1" type="radio" onclick="selectTimeStyle(this)" id="style1"><label for="style1">按节次</label>
+      <input name="timeSettingStyle" value="0" type="radio" checked="checked" onclick="selectTimeStyle(this)" id="style0">
+      <label for="style0" style="font-weight:normal;">自定义</label>
+      <input name="timeSettingStyle" value="1" type="radio" onclick="selectTimeStyle(this)" id="style1">
+      <label for="style1" style="font-weight:normal;">按节次</label>
       [/#if]
       <div id="timeRangeZone" style="display:inline">
         <input type="text" title="起始时间" name="time.beginAt" id="beginAt" style='width:70px' value="" class="Wdate"
@@ -109,19 +108,19 @@
       }
     }
 
-    dateRow.find("label:last-child").remove();
+    dateRow.find("label.error").remove();
     if(!form['time.beginAt'].value){
       return addError(timeRow,'请填写起始时间');
     }
-    timeRow.find("label:last-child").remove();
+    timeRow.find("label.error").remove();
     if(!form['time.endAt'].value){
       return addError(timeRow,'请填写结束时间');
     }
-    timeRow.find("label:last-child").remove();
+    timeRow.find("label.error").remove();
     return true;
   }
   function addError(row,msg){
-    row.find("label:last-child").remove();
+    row.find("label.error").remove();
     row.append('<label class="error">'+msg+'</label>');
     return false;
   }

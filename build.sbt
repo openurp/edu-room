@@ -30,6 +30,7 @@ val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_base_api = "org.openurp.base" % "openurp-base-api" % apiVer
 val openurp_base_tag = "org.openurp.base" % "openurp-base-tag" % baseVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
+val beangle_webmvc_view = "org.beangle.webmvc" % "beangle-webmvc-view_3" % "0.9.5-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .enablePlugins(WarPlugin, UndertowPlugin, TomcatPlugin)
@@ -37,5 +38,5 @@ lazy val root = (project in file("."))
     name := "openurp-edu-room-webapp",
     common,
     libraryDependencies ++= Seq(openurp_base_api, openurp_edu_api, beangle_webmvc_support, beangle_data_orm),
-    libraryDependencies ++= Seq(beangle_ems_app, openurp_stater_web, openurp_base_tag)
+    libraryDependencies ++= Seq(beangle_ems_app, openurp_stater_web, openurp_base_tag, beangle_webmvc_view)
   )

@@ -47,7 +47,6 @@ object OccupancyUtils {
     val query = OqlBuilder.from(classOf[Classroom], "room")
     query.where("room.beginOn <= :now and (room.endOn is null or room.endOn >= :now)", LocalDate.now(), LocalDate.now())
     query.where(new Condition("not exists (" + hql.toString + ")", params.toSeq: _*))
-    println(query.build().statement)
     query
   }
 

@@ -38,6 +38,6 @@ trait RoomApplyService {
   def remove(roomApply: RoomApply): Unit
 
   def getSetting(school: School): Option[RoomApplySetting]
-  
+
   def getScopes(departs: Iterable[Department]): Seq[RoomApplyDepartScope]
 }

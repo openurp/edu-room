@@ -1,6 +1,24 @@
+[@b.head/]
 <script>
   function validateMobile(elem){
     return /^1(3[0-9]|4[01456879]|5[0-3,5-9]|6[2567]|7[0-8]|8[0-9]|9[0-3,5-9])\d{8}$/.test(jQuery(elem).val())
+  }
+  function checkMobile(elem){
+    var row = jQuery(elem).parent();
+    if(elem.value){
+      if(!validateMobile(elem)){
+        raiseValidateError(row,"请正确填写手机号");
+      }else{
+        row.find("label.error").remove();
+      }
+    }else{
+      raiseValidateError(row,"请填写手机号");
+    }
+  }
+  function raiseValidateError(row,msg){
+    row.find("label.error").remove();
+    row.append('<label class="error">'+msg+'</label>');
+    return false;
   }
 </script>
   [@b.toolbar title="教室代理借用"/]
@@ -25,12 +43,16 @@
     [@b.field label="经办人" required="true"]
       ${user.code} ${user.name} ${user.department.name}
     [/@]
-    [@base.user name="applicant.id" required="true" label="借用人"  style="width:300px;" empty="..."/]
+    [@base.user name="applicant.id" required="true" label="借用人" params="&isStd=0" style="width:300px;" empty="..." comment="输入工号或姓名模糊查询"/]
     [@b.radios name="apply.space.requireMultimedia" items={'1':'需要使用','0':'不需要'} label="多媒体设备" value="1"/]
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型" value=activityType.id/]
     [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
-    [@b.textfield name="apply.applicant.mobile" label="联系手机" required="true"  check="assert(validateMobile, '请填写正确的手机号码')"/]
+    [#if hasSmsSupport]
+    [@b.cellphone name="apply.applicant.mobile" label="联系手机" required="true" comment="提交后发送提醒消息"/]
+    [#else]
+    [@b.cellphone name="apply.applicant.mobile" label="联系手机" required="true"/]
+    [/#if]
     [@b.formfoot]
       [@b.submit value="提交"/]
     [/@]

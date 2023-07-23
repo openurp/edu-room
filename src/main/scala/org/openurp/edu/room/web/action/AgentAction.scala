@@ -22,6 +22,7 @@ import org.beangle.commons.lang.time.{HourMinute, WeekDay, WeekTime}
 import org.beangle.commons.lang.{Enums, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.mapping
+import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
 import org.openurp.base.model.*
@@ -48,6 +49,10 @@ class AgentAction extends StaffApplyAction {
     put("buildings", entityDao.search(q))
     put("roomTypes", codeService.get(classOf[ClassroomType]))
     put("beginOn", LocalDate.now())
+
+    val ts = OqlBuilder.from(classOf[TimeSetting], "ts")
+    ts.where("ts.endOn is null")
+    put("timeSettings", entityDao.search(ts))
     forward()
   }
 
@@ -61,6 +66,7 @@ class AgentAction extends StaffApplyAction {
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     put("classrooms", rooms)
     put("user", this.getUser)
+    put("hasSmsSupport", smsService.nonEmpty)
     forward()
   }
 
@@ -85,6 +91,7 @@ class AgentAction extends StaffApplyAction {
     apply.space.campus = rooms.head.campus
     roomApplyService.submit(apply, applier)
     roomApplyService.approve(apply, applier, rooms)
+    businessLogger.info(s"代理借用了教室(${apply.activity.name})", apply.id, ActionContext.current.params)
     redirect("search", "借用提交完成")
   }
 
@@ -96,6 +103,7 @@ class AgentAction extends StaffApplyAction {
     val applies = entityDao.search(query)
     applies foreach { apply =>
       roomApplyService.remove(apply)
+      businessLogger.info(s"删除教室借用申请(${apply.activity.name})", apply.id, ActionContext.current.params)
     }
     redirect("search", s"成功删除${applies.size}个教室申请")
   }

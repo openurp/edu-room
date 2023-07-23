@@ -19,12 +19,15 @@ package org.openurp.edu.room.service.impl
 
 import org.beangle.data.dao.Query.Lang.OQL
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.ems.app.Ems
+import org.beangle.ems.app.web.WebBusinessLogger
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Department, School, User}
+import org.openurp.base.service.UserCategories
 import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplySetting}
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.{Occupancy, RoomApply, RoomOccupyApp}
-import org.openurp.edu.room.service.RoomApplyService
+import org.openurp.edu.room.service.{RoomApplyService, SmsService}
 
 import java.time.Instant
 import scala.collection.mutable
@@ -32,6 +35,8 @@ import scala.collection.mutable
 class RoomApplyServiceImpl extends RoomApplyService {
 
   var entityDao: EntityDao = _
+
+  var smsService: Option[SmsService] = None
 
   def getSetting(school: School): Option[RoomApplySetting] = {
     val query = OqlBuilder.from(classOf[RoomApplySetting], "setting")
@@ -47,63 +52,73 @@ class RoomApplyServiceImpl extends RoomApplyService {
     entityDao.saveOrUpdate(apply)
   }
 
-  def reject(roomApply: RoomApply, approveBy: User, reason: String): Unit = {
+  def reject(apply: RoomApply, approveBy: User, reason: String): Unit = {
     val log = new RoomApplyAuditLog
-    log.roomApply = roomApply
+    log.roomApply = apply
     log.approved = false
     log.auditAt = Instant.now
     log.opinions = Some(reason)
     log.auditBy = approveBy.code + " " + approveBy.name
 
-    roomApply.approved = Some(false)
-    roomApply.rooms.clear()
-    entityDao.saveOrUpdate(log, roomApply)
+    apply.approved = Some(false)
+    entityDao.remove(getOccupancies(apply))
+    apply.rooms.clear()
+    entityDao.saveOrUpdate(log, apply)
+    smsService foreach { sms =>
+      val applicant = apply.applicant.user
+      val roomNames = apply.rooms.map(_.name).mkString(",")
+      val suffix = if (applicant.category.id == UserCategories.Student) "同学" else "老师"
+      val template = s"${applicant.name}${suffix}您好，你的教室申请(${apply.activity.name})已被撤销。原因：${reason}"
+      sms.send(template, apply.applicant.mobile -> applicant.name)
+    }
   }
 
   private def getOccupancies(roomApply: RoomApply): Seq[Occupancy] = {
-    if (roomApply.rooms.nonEmpty) {
-      val query = OqlBuilder.from(classOf[Occupancy], "occ")
-      query.where("occ.room in(:rooms)", roomApply.rooms)
-      query.where("occ.activityId=:activityId", roomApply.id)
-      query.where("occ.app.id=:appId", RoomOccupyApp.RoomAppId)
-      entityDao.search(query)
-    } else {
-      List.empty
-    }
+    val query = OqlBuilder.from(classOf[Occupancy], "occ")
+    query.where("occ.activityId=:activityId", roomApply.id)
+    query.where("occ.app.id=:appId", RoomOccupyApp.RoomAppId)
+    entityDao.search(query)
   }
 
   /** 批准教室申请(允许批量分配教室)
    */
-  override def approve(roomApply: RoomApply, approveBy: User, rooms: Seq[Classroom]): Boolean = {
-    entityDao.remove(getOccupancies(roomApply))
-    roomApply.rooms.clear()
-    roomApply.approved = Option(rooms.nonEmpty)
-    roomApply.approvedAt = Some(Instant.now)
+  override def approve(apply: RoomApply, approveBy: User, rooms: Seq[Classroom]): Boolean = {
+    entityDao.remove(getOccupancies(apply))
+    apply.rooms.clear()
+    apply.approved = Option(rooms.nonEmpty)
+    apply.approvedAt = Some(Instant.now)
 
     val log = new RoomApplyAuditLog
-    log.roomApply = roomApply
+    log.roomApply = apply
     log.approved = true
     log.auditAt = Instant.now
     log.auditBy = approveBy.code + " " + approveBy.name
 
     val occupancies = new mutable.ArrayBuffer[Occupancy]
-    roomApply.time.times.foreach(time => {
+    apply.time.times.foreach(time => {
       rooms.foreach(room => {
         val occupancy = new Occupancy
         occupancy.room = room
         occupancy.time = time
-        occupancy.activityType = roomApply.activity.activityType
-        occupancy.comments = roomApply.activity.name
+        occupancy.activityType = apply.activity.activityType
+        occupancy.comments = apply.activity.name
         occupancy.app = new RoomOccupyApp(RoomOccupyApp.RoomAppId)
-        occupancy.activityId = roomApply.id
+        occupancy.activityId = apply.id
         occupancy.updatedAt = Instant.now()
         occupancies.addOne(occupancy)
       })
     })
-    roomApply.rooms.addAll(rooms)
+    apply.rooms.addAll(rooms)
     try {
-      entityDao.saveOrUpdate(roomApply, log)
+      entityDao.saveOrUpdate(apply, log)
       entityDao.saveOrUpdate(occupancies)
+      smsService foreach { sms =>
+        val applicant = apply.applicant.user
+        val roomNames = apply.rooms.map(_.name).mkString(",")
+        val suffix = if (applicant.category.id == UserCategories.Student) "同学" else "老师"
+        val template = s"${applicant.name}${suffix}您好，你的教室申请(${apply.activity.name})已经审批通过。借用时间为${apply.time},教室为${roomNames}。教室凭证查看：${Ems.base}/edu/room/apply-info/${apply.id}"
+        sms.send(template, apply.applicant.mobile -> applicant.name)
+      }
     } catch {
       case e: Exception => return false
     }
