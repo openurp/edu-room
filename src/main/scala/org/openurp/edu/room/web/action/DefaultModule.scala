@@ -27,7 +27,7 @@ class DefaultModule extends BindModule {
   protected override def binding(): Unit = {
     bind(classOf[AvailableTimeAction])
     bind(classOf[OccupancyAction])
-    bind(classOf[ApplyAction])
+    bind(classOf[StaffApplyAction])
     bind(classOf[AgentAction])
     bind(classOf[ApproveAction])
     bind(classOf[DepartApproveAction])
@@ -36,5 +36,8 @@ class DefaultModule extends BindModule {
 
     bind(classOf[SettingAction])
     bind(classOf[ApplySearchAction])
+
+    bind(classOf[DepartScopeAction])
+    bind(classOf[DepartAgentAction])
   }
 }

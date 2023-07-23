@@ -20,8 +20,8 @@ package org.openurp.edu.room.service
 import org.beangle.commons.collection.Collections
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{School, User}
-import org.openurp.edu.room.config.RoomApplySetting
+import org.openurp.base.model.{Department, School, User}
+import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplySetting}
 import org.openurp.edu.room.model.{Occupancy, RoomApply, RoomOccupyApp}
 import org.openurp.edu.room.util.OccupancyUtils
 
@@ -38,4 +38,6 @@ trait RoomApplyService {
   def remove(roomApply: RoomApply): Unit
 
   def getSetting(school: School): Option[RoomApplySetting]
+  
+  def getScopes(departs: Iterable[Department]): Seq[RoomApplyDepartScope]
 }

@@ -2,12 +2,16 @@
 [@b.head/]
 [@b.toolbar title="教室借用审核"]
   bar.addItem("代理借用", "agentApply()");
-  bar.addItem("借用设置", "applySetting()");
+  bar.addItem("借用申请设置", "applySetting()");
+  bar.addItem("院系代理借用设置", "departScopeSetting()");
   function agentApply() {
     bg.form.submit(document.searchRoomApplyApproveForm,'${b.url("agent")}',"_blank");
   }
   function applySetting() {
     bg.form.submit(document.searchRoomApplyApproveForm,'${b.url("setting")}',"_blank");
+  }
+  function departScopeSetting() {
+    bg.form.submit(document.searchRoomApplyApproveForm,'${b.url("depart-scope")}',"_blank");
   }
 [/@]
 <div class="search-container">

@@ -20,8 +20,8 @@ package org.openurp.edu.room.service.impl
 import org.beangle.data.dao.Query.Lang.OQL
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{School, User}
-import org.openurp.edu.room.config.RoomApplySetting
+import org.openurp.base.model.{Department, School, User}
+import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplySetting}
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.{Occupancy, RoomApply, RoomOccupyApp}
 import org.openurp.edu.room.service.RoomApplyService
@@ -114,5 +114,13 @@ class RoomApplyServiceImpl extends RoomApplyService {
     entityDao.remove(getOccupancies(roomApply))
     entityDao.remove(entityDao.findBy(classOf[RoomApplyAuditLog], "roomApply", roomApply))
     entityDao.remove(roomApply)
+  }
+
+  override def getScopes(departs: Iterable[Department]): Seq[RoomApplyDepartScope] = {
+    if departs.isEmpty then List.empty
+    else
+      val query = OqlBuilder.from(classOf[RoomApplyDepartScope], "s")
+      query.where("s.depart in(:departs)", departs)
+      entityDao.search(query)
   }
 }

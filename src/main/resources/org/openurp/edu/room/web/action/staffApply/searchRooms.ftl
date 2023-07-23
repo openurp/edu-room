@@ -17,11 +17,35 @@
         </div>
     [/@]
     [@b.field label="借用时间" required="true"]
-      <input type="text" title="起始时间" name="time.beginAt" id="beginAt" style='width:70px' value="" class="Wdate"
+      [#if timeSettings?size >0][#assign timeSetting= timeSettings?first][/#if]
+      [#if timeSetting??]
+      <input name="timeSettingStyle" value="0" type="radio" checked="checked" onclick="selectTimeStyle(this)" id="style0"><label for="style0">自定义</label>
+      <input name="timeSettingStyle" value="1" type="radio" onclick="selectTimeStyle(this)" id="style1"><label for="style1">按节次</label>
+      [/#if]
+      <div id="timeRangeZone" style="display:inline">
+        <input type="text" title="起始时间" name="time.beginAt" id="beginAt" style='width:70px' value="" class="Wdate"
              onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'${setting.beginAt}',maxDate:'#F{$dp.$D(\'endAt\')}'})" placeholder="HH:mm"/>
-         - <input type="text" title="结束时间" name="time.endAt"  id="endAt" value="" style='width:70px' class="Wdate"
+      - <input type="text" title="结束时间" name="time.endAt"  id="endAt" value="" style='width:70px' class="Wdate"
           onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'#F{$dp.$D(\'beginAt\')}',maxDate:'${setting.endAt}'})" maxlength="5" placeholder="HH:mm"/>
+      </div>
     [/@]
+
+    [#if timeSetting??]
+    [@b.field label="可选节次" style="display:none"]
+      <div id="unitRangeZone" style="display:inline">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons" style="height: 1.5625rem;font-size:0.8125rem !important;">
+            [#assign dayPartId=0/]
+            [#list timeSetting.units as u]
+            <label style="font-weight:normal;padding:0px 1px 0px 1px;[#if u.part.id!=dayPartId][#assign dayPartId=u.part.id/]margin-left:5px[/#if]"
+                   class="btn btn-outline-secondary btn-sm" title="${u.beginAt}~${u.endAt}">
+            <input type="checkbox" name="unit" id="unit_${u.id}" value="${u.indexno}" onclick="toggleUnit(this)">${u.name}
+            </label>
+            [/#list]
+        </div>
+      </div>
+    [/@]
+    [/#if]
+
     [@b.select name="room.roomType.id" items=roomTypes label="教室类型" comment="以下条件，无要求可忽略"/]
     [@b.select name="room.building.id" items=buildings label="教学楼"/]
     [@b.textfield name="room.name" label="教室名称"/]
@@ -101,6 +125,101 @@
     row.append('<label class="error">'+msg+'</label>');
     return false;
   }
+
+  [#if timeSetting??]
+  function selectTimeStyle(ele){
+    if(ele.value=='0'){
+      jQuery("#unitRangeZone").parent().hide()
+      jQuery("[name='time\.beginAt']").attr("readonly",false)
+      jQuery("[name='time\.endAt']").attr("readonly",false)
+    }else{
+      jQuery("[name='time\.beginAt']").attr("readonly",true)
+      jQuery("[name='time\.endAt']").attr("readonly",true)
+      jQuery("#unitRangeZone").parent().show()
+    }
+  }
+
+  var units=[[#list timeSetting.units as u]{'id':'${u.id}','beginAt':'${u.beginAt}','endAt':'${u.endAt}','indexno':${u.indexno}}[#sep],[/#list]];
+  var bIdx=null;
+  var eIdx=null;
+  function toggleUnit(elem){
+    var cur = parseInt(elem.value);
+    if(jQuery(elem).prop("checked")){
+      if(!bIdx && !eIdx){
+        bIdx = cur;
+        eIdx = cur;
+      }else{
+        if(cur < bIdx){
+          toggleUnitRange(cur,bIdx-1,true);
+          bIdx = cur;
+        }else if(cur>eIdx){
+          toggleUnitRange(eIdx+1,cur,true);
+          eIdx = cur;
+        }
+      }
+    }else{
+      if(cur == bIdx){
+        if(bIdx == eIdx){
+          bIdx=null;eIdx=null;
+        }else{
+          toggleUnitRange(bIdx,eIdx-1,false);
+          bIdx=eIdx;
+        }
+      }else if(cur>bIdx && cur<eIdx){
+        if(cur-bIdx >= eIdx-cur){
+          toggleUnitRange(cur+1,eIdx,false);
+          eIdx=cur-1;
+        }else{
+          toggleUnitRange(bIdx,cur-1,false);
+          bIdx=cur+1;
+        }
+      }else if(cur==eIdx){
+        if(bIdx == eIdx){
+          bIdx=null;eIdx=null;
+        }else{
+          toggleUnitRange(bIdx+1,eIdx,false);
+          eIdx=bIdx;
+        }
+      }
+    }
+    fillTime(bIdx,eIdx);
+  }
+
+  function fillTime(bIdx,eIdx){
+    if(bIdx){
+      for(i =0;i<units.length;i++){
+        if(bIdx == units[i].indexno){
+          jQuery("[name='time\.beginAt']").val(units[i].beginAt);
+        }
+        if(eIdx == units[i].indexno){
+          jQuery("[name='time\.endAt']").val(units[i].endAt);
+        }
+      }
+    }else{
+      jQuery("[name='time\.beginAt']").val("");
+      jQuery("[name='time\.endAt']").val("");
+    }
+  }
+  function toggleUnitRange(begin,end,active){
+    if(begin>end) return;
+    for(i =0;i<units.length;i++){
+      if(begin <= units[i].indexno  && units[i].indexno<= end){
+        var selector='#unit_'+units[i].id;
+        if(active){
+          if(!jQuery(selector).prop("checked")){
+            jQuery(selector).prop("checked",true);
+            jQuery(selector).parent().addClass("active")
+          }
+        }else{
+          if(jQuery(selector).prop("checked")){
+            jQuery(selector).prop("checked",false);
+            jQuery(selector).parent().removeClass("active")
+          }
+        }
+      }
+    }
+  }
+  [/#if]
   </script>
     [#if alert??]<font color="red">请至少提前两天申请教室!</font>[/#if]
   [@b.div id="freeRoomList"/]

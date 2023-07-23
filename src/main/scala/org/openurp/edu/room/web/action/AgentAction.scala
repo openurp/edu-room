@@ -40,7 +40,7 @@ import scala.sys.error
 
 /** 代理借用
  */
-class AgentAction extends ApplyAction {
+class AgentAction extends StaffApplyAction {
 
   override def searchRooms(): View = {
     val q = OqlBuilder.from(classOf[Building], "b")

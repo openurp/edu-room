@@ -44,7 +44,9 @@ import java.time.{Instant, LocalDate, ZoneId}
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable
 
-class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport {
+/** 教职工申请借教室
+ */
+class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport {
 
   var entityDao: EntityDao = _
 
@@ -59,6 +61,7 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     val q = OqlBuilder.from(classOf[Building], "b")
     q.where("b.endOn is null")
     put("buildings", entityDao.search(q))
+
     put("roomTypes", codeService.get(classOf[ClassroomType]))
     val setting = roomApplyService.getSetting(null).get
     put("setting", setting)
@@ -68,6 +71,10 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     } else {
       put("beginOn", LocalDate.now())
     }
+
+    val ts = OqlBuilder.from(classOf[TimeSetting], "ts")
+    ts.where("ts.endOn is null")
+    put("timeSettings", entityDao.search(ts))
     forward()
   }
 
@@ -82,7 +89,7 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     } else {
       activityTypes.head
     }
-    put("unitAttendance",getInt("room.capacity",0))
+    put("unitAttendance", getInt("room.capacity", 0))
     put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
     put("activityType", activityType)
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
@@ -120,10 +127,15 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     apply.space.roomComment = Some(rooms.map(_.name).mkString(","))
     apply.space.campus = rooms.head.campus
     roomApplyService.submit(apply, user)
+
+    if (getBoolean("saveMobile", false)) {
+      user.mobile = Some(apply.applicant.mobile)
+      entityDao.saveOrUpdate(user)
+    }
     redirect("search", "借用申请提交完成")
   }
 
-  def freeRooms(): View = {
+  protected def buildFreeRoomQuery(): OqlBuilder[Classroom] = {
     val time = getApplyTime()
     val weektimes = time.toWeektimes()
     val query = OccupancyUtils.buildFreeroomQuery(weektimes)
@@ -138,6 +150,10 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
     }
     query.where("room.roomNo is not null");
     query.limit(getPageLimit)
+  }
+
+  def freeRooms(): View = {
+    val query = buildFreeRoomQuery()
     put("classrooms", entityDao.search(query))
     forward()
   }
@@ -190,12 +206,7 @@ class ApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSupport
   }
 
   def getUser: User = {
-    val users = entityDao.findBy(classOf[User], "code", List(Securities.user))
-    if (users.isEmpty) {
-      null
-    } else {
-      users.head
-    }
+    entityDao.findBy(classOf[User], "code", List(Securities.user)).headOption.orNull
   }
 
   def setting(): View = {
