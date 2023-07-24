@@ -24,6 +24,7 @@
     [@b.col title="使用教室" width="18%"]
       [#if roomApply.rooms?? && roomApply.rooms?size>0]
       [#list roomApply.rooms?if_exists as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
+      [@b.a href="!report?id=${roomApply.id}" target="_blank"]凭证&#8599;[/@]
       [#else]
       <font color="red">
       [#if roomApply.approved??]${roomApply.approved?string('审核通过','审核不通过')}

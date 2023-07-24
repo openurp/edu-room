@@ -27,6 +27,10 @@
              <tr><td>[@b.a href="!index?buildingId=0"]未写明具体教学楼[/@]</td><td></td></tr>
             </tbody>
           </table>
+          <hr>
+          <div style="text-align: center;">
+          [@b.a href="free" target="_blank" class="btn btn-outline-success"]空闲教室查询[/@]
+          </div>
         </div>
       </div>
       <div id="classroom_info" class="col-9">

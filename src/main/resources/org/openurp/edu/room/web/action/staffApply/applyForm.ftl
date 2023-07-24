@@ -27,7 +27,7 @@
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
     [@b.textfield name="apply.space.unitAttendance" value=unitAttendance label="最小教室容量" required="true" comment="0表示不要求"/]
     [@b.cellphone name="apply.applicant.mobile" required="true" label="联系手机" value=applicant.mobile!]
-      <input type='checkbox' name='saveMobile' id='saveMobile' ><label style='font-weight: normal;' for='saveMobile'>保存为常用号码</label>
+      <br><input type='checkbox' name='saveMobile' id='saveMobile' ><label style='font-weight: normal;' for='saveMobile'>保存为常用号码</label>
       [#if hasSmsSupport](申请通过后，该号码收到审批提醒，查看凭证)[/#if]
     [/@]
     [@b.formfoot]
