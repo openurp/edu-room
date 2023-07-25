@@ -14,23 +14,29 @@
     <tr>
         <td class="title">&nbsp;审核部门：</td>
       <td>${roomApply.applicant.auditDepart.name}</td>
-      <td class="title"  >&nbsp;联系方式：</td>
+      <td class="title">&nbsp;联系方式：</td>
       <td>${roomApply.applicant.mobile!}</td>
     </tr>
     <tr>
       <td class="title">活动类型：</td>
       <td>${roomApply.activity.activityType.name}</td>
-      <td class="title"  >&nbsp; 活动名称：</td>
+      <td class="title">&nbsp; 活动名称：</td>
       <td colspan  ="3">${roomApply.activity.name!}</td>
+    </tr>
+    <tr>
+      <td class="title">&nbsp;主讲人：</td>
+      <td>${(roomApply.activity.speaker)!}</td>
+      <td class="title">&nbsp;出席对象：</td>
+      <td>${roomApply.activity.attendance!}</td>
     </tr>
     <tr>
       <td class="title">&nbsp;借用校区：</td>
       <td>${(roomApply.space.campus.name)!}</td>
-      <td class="title"  >&nbsp;出席总人数：</td>
+      <td class="title">&nbsp;出席总人数：</td>
       <td>${roomApply.activity.attendanceNum}</td>
     </tr>
     <tr>
-      <td class="title"  >&nbsp;是否使用多媒体设备：</td>
+      <td class="title">&nbsp;是否使用多媒体设备：</td>
       <td>${roomApply.space.requireMultimedia?string('是','否')}</td>
       <td class="title">其它要求：</td>
       <td>${(roomApply.space.roomComment)!}</td>

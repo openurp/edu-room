@@ -24,6 +24,7 @@
     [@b.radios name="apply.space.requireMultimedia" items={'1':'需要使用','0':'不需要'} label="多媒体设备" value="1"/]
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型" value=activityType.id/]
     [@b.textfield name="apply.activity.name" label="活动名称" required="true"/]
+    [@b.textfield name="apply.activity.speaker" label="主讲人" required="true" value=applicant.name comment="上课可填任课教师"/]
     [@b.textfield name="apply.activity.attendanceNum" label="出席人数" required="true" comment="容量${capacity}"/]
     [@b.textfield name="apply.space.unitAttendance" value=unitAttendance label="最小教室容量" required="true" comment="0表示不要求"/]
     [@b.cellphone name="apply.applicant.mobile" required="true" label="联系手机" value=applicant.mobile!]
