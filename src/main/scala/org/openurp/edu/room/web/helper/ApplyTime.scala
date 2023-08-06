@@ -17,11 +17,9 @@
 
 package org.openurp.edu.room.web.helper
 
-import org.beangle.commons.lang.time.{HourMinute, WeekTime}
+import org.beangle.commons.lang.time.{CycleTime, CycleTimeDigest, HourMinute, WeekTime}
+import org.beangle.commons.lang.time.CycleTime.CycleTimeType
 import org.beangle.data.model.LongId
-import org.openurp.edu.room.model.CycleTime.CycleTimeType
-import org.openurp.edu.room.model.{CycleTime, CycleTimeDigest}
-
 import java.time.LocalDate
 
 class ApplyTime {

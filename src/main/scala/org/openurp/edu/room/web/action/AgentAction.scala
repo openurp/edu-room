@@ -18,7 +18,8 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.{Collections, Order}
-import org.beangle.commons.lang.time.{HourMinute, WeekDay, WeekTime}
+import org.beangle.commons.lang.time.CycleTime.CycleTimeType
+import org.beangle.commons.lang.time.{CycleTime, HourMinute, WeekDay, WeekTime}
 import org.beangle.commons.lang.{Enums, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.mapping
@@ -29,7 +30,6 @@ import org.openurp.base.model.*
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.model.*
-import org.openurp.edu.room.model.CycleTime.CycleTimeType
 import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 

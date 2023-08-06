@@ -17,24 +17,24 @@
 
 package org.openurp.edu.room.web.action
 
+import org.beangle.commons.lang.time.CycleTime.CycleTimeType
+import org.beangle.commons.lang.time.{CycleTime, HourMinute, WeekTime}
 import org.beangle.commons.lang.{Enums, Strings}
-import org.beangle.commons.lang.time.{HourMinute, WeekTime}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.Classroom
 import org.openurp.base.model.{Campus, Project}
-import org.openurp.edu.room.model.CycleTime.CycleTimeType
-import org.openurp.edu.room.model.{CycleTime, RoomAvailableTime}
+import org.openurp.edu.room.model.RoomAvailableTime
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.Instant
-import scala.collection.mutable
 
 class AvailableTimeAction extends RestfulAction[RoomAvailableTime] with ProjectSupport {
 
   override def indexSetting(): Unit = {
     given project: Project = getProject
+
     put("campuses", findInSchool(classOf[Campus]))
     super.indexSetting()
   }
@@ -114,7 +114,7 @@ class AvailableTimeAction extends RestfulAction[RoomAvailableTime] with ProjectS
       cycleDate.cycleCount = cycleCount
     })
     getInt("cycleTime.cycleType").foreach(cycleType => {
-      cycleDate.cycleType = Enums.of(classOf[CycleTimeType],cycleType).get
+      cycleDate.cycleType = Enums.of(classOf[CycleTimeType], cycleType).get
     })
     getDate("cycleTime.beginOn").foreach(dateBegin => {
       cycleDate.beginOn = dateBegin

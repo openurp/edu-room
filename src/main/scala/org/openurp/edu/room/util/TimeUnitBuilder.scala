@@ -19,7 +19,7 @@ package org.openurp.edu.room.util
 
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.time.{HourMinute, WeekTime}
-import org.openurp.edu.room.model.CycleTime
+import org.beangle.commons.lang.time.CycleTime
 
 import java.time.LocalDate
 import scala.collection.mutable
