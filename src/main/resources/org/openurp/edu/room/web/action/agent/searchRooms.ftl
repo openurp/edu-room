@@ -9,8 +9,9 @@
         <div id="dateRangeZone" style="display:none"> ~
         <input type="text" title="结束日期" readOnly="readOnly" id="endOn" name="time.endOn" class="Wdate"
                    onFocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'beginOn\')}'})" maxlength="10" style="width:120px" placeholder="YYYY-MM-DD"/>
-        <input name="time.cyle" value="1" type="radio" checked="checked"  id="cyle1"><label for="cyle1" style="font-weight:normal;">每天</label>
-        <input name="time.cyle" value="7" type="radio" id="cyle7"><label for="cyle7" style="font-weight:normal;">每周</label>
+        <input name="time.cycle" value="1" type="radio" checked="checked"  id="cycle1"><label for="cycle1" style="font-weight:normal;">每天</label>
+        <input name="time.cycle" value="7" type="radio" id="cycle7"><label for="cycle7" style="font-weight:normal;">每周</label>
+        <input name="time.cycle" value="14" type="radio" id="cycle14"><label for="cycle14" style="font-weight:normal;">每两周</label>
         </div>
     [/@]
     [@b.field label="借用时间" required="true"]

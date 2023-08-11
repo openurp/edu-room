@@ -17,9 +17,9 @@
 
 package org.openurp.edu.room.web.helper
 
-import org.beangle.commons.lang.time.{CycleTime, CycleTimeDigest, HourMinute, WeekTime}
 import org.beangle.commons.lang.time.CycleTime.CycleTimeType
-import org.beangle.data.model.LongId
+import org.beangle.commons.lang.time.{CycleTime, CycleTimeDigest, HourMinute, WeekTime}
+
 import java.time.LocalDate
 
 class ApplyTime {
@@ -32,12 +32,7 @@ class ApplyTime {
 
   def toWeektimes(): List[WeekTime] = {
     val builder = CycleTime.ToWeekTimeBuilder(beginAt, endAt)
-
-    if (cycle == 1) {
-      builder.addRange(beginOn, endOn, CycleTimeType.Day, 1)
-    } else {
-      builder.addRange(beginOn, endOn, CycleTimeType.Week, 1)
-    }
+    builder.addRange(beginOn, endOn, CycleTimeType.Day, cycle)
     builder.build()
   }
 
