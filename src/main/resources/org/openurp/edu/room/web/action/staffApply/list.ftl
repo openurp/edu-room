@@ -2,7 +2,7 @@
 [@b.head/]
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
-    //bar.addItem("${b.text('action.edit')}",action.edit());
+    bar.addItem("${b.text('action.edit')}",action.edit());
     bar.addItem("${b.text('action.info')}",action.info());
     bar.addItem("${b.text('action.delete')}",action.remove());
   [/@]

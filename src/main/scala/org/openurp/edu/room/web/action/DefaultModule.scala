@@ -39,5 +39,7 @@ class DefaultModule extends BindModule {
     bind(classOf[DepartScopeAction])
     bind(classOf[DepartAgentAction])
     bind(classOf[ApplyInfoAction])
+
+    bind(classOf[OccupyReportAction])
   }
 }

@@ -28,6 +28,7 @@ import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
 import org.openurp.base.model.*
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
+import org.openurp.edu.clazz.domain.WeekTimeBuilder
 import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.model.*
 import org.openurp.edu.room.service.RoomApplyService

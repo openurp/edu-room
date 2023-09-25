@@ -25,14 +25,16 @@ import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.{Status, View}
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{Building, Project}
+import org.openurp.base.model.Building
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.code.service.CodeService
-import org.openurp.edu.room.model.{Occupancy, WeekTimeBuilder}
-import org.openurp.starter.web.support.ProjectSupport
+import org.openurp.edu.clazz.domain.WeekTimeBuilder
+import org.openurp.edu.room.model.Occupancy
 
 import java.time.LocalDate
 
+/** 浏览占用内容
+ */
 class OccupancyAction extends ActionSupport with EntityAction[Classroom] {
 
   var entityDao: EntityDao = _

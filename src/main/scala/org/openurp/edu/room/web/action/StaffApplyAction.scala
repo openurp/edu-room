@@ -17,9 +17,8 @@
 
 package org.openurp.edu.room.web.action
 
-import org.beangle.commons.collection.{Collections, Order}
-import org.beangle.commons.lang.Strings
-import org.beangle.commons.lang.time.{HourMinute, WeekDay, WeekTime}
+import org.beangle.commons.collection.Order
+import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.web.WebBusinessLogger
 import org.beangle.security.Securities
@@ -28,23 +27,19 @@ import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.{EntityAction, RestfulAction}
-import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
+import org.beangle.webmvc.support.action.EntityAction
+import org.openurp.base.edu.model.{Classroom, TimeSetting}
 import org.openurp.base.model.*
 import org.openurp.base.service.UserCategories
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
-import org.openurp.edu.clazz.service.CourseTableStyle
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.*
 import org.openurp.edu.room.service.{RoomApplyService, SmsService}
 import org.openurp.edu.room.util.OccupancyUtils
-import org.openurp.edu.room.web.helper.ApplyTime
 import org.openurp.starter.web.support.ProjectSupport
 
-import java.time.temporal.ChronoUnit
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.LocalDate
 import scala.collection.immutable.TreeMap
-import scala.collection.mutable
 
 /** 教职工申请借教室
  */
@@ -63,6 +58,10 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     forward()
   }
 
+  /** 填写申请第一步，查询空闲教室
+   *
+   * @return
+   */
   def searchRooms(): View = {
     val q = OqlBuilder.from(classOf[Building], "b")
     q.where("b.endOn is null")
@@ -78,17 +77,57 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
       put("beginOn", LocalDate.now())
     }
 
+    put("time", new ApplyTime)
     val ts = OqlBuilder.from(classOf[TimeSetting], "ts")
     ts.where("ts.endOn is null")
     put("timeSettings", entityDao.search(ts))
     forward()
   }
 
+  @mapping(value = "{id}/edit")
+  def edit(@param("id") id: Long): View = {
+    val apply = entityDao.get(classOf[RoomApply], id)
+    put("apply", apply)
+    put("time", apply.time.toApplyTime())
+    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
+    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
+    if (apply.approved.getOrElse(false)) {
+      forward("updateForm")
+    } else {
+      val q = OqlBuilder.from(classOf[Building], "b")
+      q.where("b.endOn is null")
+      put("buildings", entityDao.search(q))
+
+      put("roomTypes", codeService.get(classOf[ClassroomType]))
+      val setting = roomApplyService.getSetting(null).get
+      put("setting", setting)
+      val applicant = getUser
+      if (Set(UserCategories.Teacher, UserCategories.Student).contains(applicant.category.id)) {
+        put("beginOn", LocalDate.now().plusDays(setting.daysBeforeApply))
+      } else {
+        put("beginOn", LocalDate.now())
+      }
+
+      val ts = OqlBuilder.from(classOf[TimeSetting], "ts")
+      ts.where("ts.endOn is null")
+      put("timeSettings", entityDao.search(ts))
+      forward("searchRooms")
+    }
+  }
+
+  def updateApply(): View = {
+    val apply = entityDao.get(classOf[RoomApply], getLongId("apply"))
+    apply.activity.activityType = entityDao.get(classOf[ActivityType], getIntId("apply.activity.activityType"))
+    apply.activity.speaker = get("apply.activity.speaker", "--")
+    apply.activity.name = get("apply.activity.name", "--")
+    entityDao.saveOrUpdate(apply)
+    redirect("search", "更新成功")
+  }
+
   def applyForm(): View = {
     val time = getApplyTime()
     val applicant = getUser
     put("time", time)
-
     val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
     val activityType = if (applicant.category.id == UserCategories.Teacher) {
       activityTypes.find(_.name.contains("课")).getOrElse(activityTypes.head)
@@ -101,6 +140,11 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
     put("classrooms", rooms)
     put("applicant", applicant)
+    getLong("apply.id") foreach { applyId =>
+      val apply = entityDao.get(classOf[RoomApply], applyId)
+      put("apply", apply)
+      put("activityType", apply.activity.activityType)
+    }
     put("hasSmsSupport", smsService.nonEmpty)
     forward()
   }
@@ -117,9 +161,10 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
 
   def saveApply(): View = {
     val time = getApplyTime()
-    val apply = this.populate(classOf[RoomApply], "apply")
+    val apply = populateEntity(classOf[RoomApply], "apply")
 
     if (null == apply.time) apply.time = new TimeRequest()
+    apply.time.times.clear()
     apply.time.times.addAll(time.toWeektimes())
     apply.time.beginOn = time.beginOn
     apply.time.endOn = time.endOn

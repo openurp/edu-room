@@ -26,7 +26,8 @@ import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
 import org.openurp.base.model.Building
-import org.openurp.edu.room.model.{RoomApply, WeekTimeBuilder}
+import org.openurp.edu.clazz.domain.WeekTimeBuilder
+import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.util.OccupancyUtils
 
 import java.time.{LocalDate, LocalTime}
@@ -78,7 +79,7 @@ class FreeAction extends ActionSupport, EntityAction[Classroom] {
       case Some(orderClause) => query.orderBy(orderClause)
       case None => query.orderBy("room.name,room.capacity")
     }
-    put("logined",Securities.session.nonEmpty)
+    put("logined", Securities.session.nonEmpty)
     put("classrooms", entityDao.search(query))
     forward()
   }

@@ -141,8 +141,9 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
       case Some(capacity) => query.where("room.capacity>=:capacity", capacity)
       case None => query.where("room.capacity>=:capacity", apply.space.unitAttendance)
     }
+    println(get(Order.OrderStr))
     get(Order.OrderStr) match {
-      case Some(orderClause) => query.orderBy(orderClause)
+      case Some(orderClause) => if (orderClause.startsWith("room.")) query.orderBy(orderClause)
       case None => query.orderBy("room.name,room.capacity")
     }
     query.limit(getPageLimit)

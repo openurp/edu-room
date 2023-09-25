@@ -18,14 +18,14 @@
 package org.openurp.edu.room.service
 
 import org.beangle.cdi.bind.BindModule
+import org.beangle.commons.codec.digest.Digests
+import org.beangle.commons.io.{Dirs, IOs}
 import org.beangle.ems.app.EmsApp
-import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.service.impl.{EcuplSmsServiceImpl, RoomApplyServiceImpl}
-import org.openurp.edu.room.util.OccupancyUtils
 
-import java.io.FileInputStream
+import java.io.{File, FileInputStream}
 
-class DefaultModule extends BindModule {
+object DefaultModule extends BindModule {
 
   protected override def binding(): Unit = {
     bind(classOf[RoomApplyServiceImpl])
@@ -45,6 +45,5 @@ class DefaultModule extends BindModule {
       if (base != null && null != appId && null != appPassword)
         bind(classOf[EcuplSmsServiceImpl]).constructor(base, appId, appPassword)
     }
-
   }
 }
