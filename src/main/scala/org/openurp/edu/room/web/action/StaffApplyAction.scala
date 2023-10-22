@@ -18,6 +18,7 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
+import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.web.WebBusinessLogger
@@ -28,6 +29,7 @@ import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
+import org.beangle.webmvc.support.helper.QueryHelper
 import org.openurp.base.edu.model.{Classroom, TimeSetting}
 import org.openurp.base.model.*
 import org.openurp.base.service.UserCategories
@@ -84,6 +86,42 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     forward()
   }
 
+  /** 填写申请第二步，填写申请信息
+   *
+   * @return
+   */
+  def applyForm(): View = {
+    val time = getApplyTime()
+    val applicant = getUser
+    put("time", time)
+    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
+    val activityType = if (applicant.category.id == UserCategories.Teacher) {
+      activityTypes.find(_.name.contains("课")).getOrElse(activityTypes.head)
+    } else {
+      activityTypes.head
+    }
+    put("unitAttendance", getInt("room.capacity", 0))
+    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
+    put("activityType", activityType)
+    val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
+    put("classrooms", rooms)
+    put("applicant", applicant)
+    put("speaker", applicant.name)
+    getLong("apply.id") foreach { applyId =>
+      val apply = entityDao.get(classOf[RoomApply], applyId)
+      put("apply", apply)
+      put("speaker", apply.activity.speaker)
+      put("activityType", apply.activity.activityType)
+    }
+    put("hasSmsSupport", smsService.nonEmpty)
+    forward()
+  }
+
+  /** 修改申请
+   *
+   * @param id
+   * @return
+   */
   @mapping(value = "{id}/edit")
   def edit(@param("id") id: Long): View = {
     val apply = entityDao.get(classOf[RoomApply], id)
@@ -115,38 +153,18 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     }
   }
 
+  /** 提交更改
+   *
+   * @return
+   */
   def updateApply(): View = {
     val apply = entityDao.get(classOf[RoomApply], getLongId("apply"))
     apply.activity.activityType = entityDao.get(classOf[ActivityType], getIntId("apply.activity.activityType"))
     apply.activity.speaker = get("apply.activity.speaker", "--")
     apply.activity.name = get("apply.activity.name", "--")
+    get("apply.applicant.mobile") foreach { mobile => apply.applicant.mobile = mobile }
     entityDao.saveOrUpdate(apply)
     redirect("search", "更新成功")
-  }
-
-  def applyForm(): View = {
-    val time = getApplyTime()
-    val applicant = getUser
-    put("time", time)
-    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
-    val activityType = if (applicant.category.id == UserCategories.Teacher) {
-      activityTypes.find(_.name.contains("课")).getOrElse(activityTypes.head)
-    } else {
-      activityTypes.head
-    }
-    put("unitAttendance", getInt("room.capacity", 0))
-    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
-    put("activityType", activityType)
-    val rooms = entityDao.find(classOf[Classroom], getLongIds("classroom"))
-    put("classrooms", rooms)
-    put("applicant", applicant)
-    getLong("apply.id") foreach { applyId =>
-      val apply = entityDao.get(classOf[RoomApply], applyId)
-      put("apply", apply)
-      put("activityType", apply.activity.activityType)
-    }
-    put("hasSmsSupport", smsService.nonEmpty)
-    forward()
   }
 
   protected def getApplyTime(): ApplyTime = {
@@ -159,6 +177,10 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     time.build()
   }
 
+  /** 申请第三步，提交申请
+   *
+   * @return
+   */
   def saveApply(): View = {
     val time = getApplyTime()
     val apply = populateEntity(classOf[RoomApply], "apply")
@@ -201,7 +223,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
       case Some(orderClause) => query.orderBy(orderClause)
       case None => query.orderBy("room.name,room.capacity")
     }
-    query.where("room.roomNo is not null");
+    query.where("room.roomNo is not null")
     query.limit(getPageLimit)
   }
 
@@ -232,8 +254,18 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
   }
 
   override def getQueryBuilder: OqlBuilder[RoomApply] = {
-    val query = super.getQueryBuilder
+    val query = OqlBuilder.from(classOf[RoomApply], "roomApply")
+    populateConditions(query, "roomApply.roomName")
+    QueryHelper.sort(query)
+    query.tailOrder("roomApply.id")
+    query.limit(getPageLimit)
+
     query.where("roomApply.applyBy=:me", getUser)
+    get("roomApply.roomName") foreach { n =>
+      if (Strings.isNotBlank(n)) {
+        query.where("exists(from roomApply.rooms r where r.name like :name)", s"%$n%")
+      }
+    }
     if (!query.hasOrderBy) query.orderBy("roomApply.applyAt desc")
     query
   }

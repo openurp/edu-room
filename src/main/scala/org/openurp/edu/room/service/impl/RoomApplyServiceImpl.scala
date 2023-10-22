@@ -49,6 +49,8 @@ class RoomApplyServiceImpl extends RoomApplyService {
     apply.school = applyBy.school
     apply.applyBy = applyBy
     apply.applyAt = Instant.now
+    apply.departApproved = None
+    apply.approved = None
     entityDao.saveOrUpdate(apply)
   }
 
@@ -61,6 +63,7 @@ class RoomApplyServiceImpl extends RoomApplyService {
     log.auditBy = approveBy.code + " " + approveBy.name
 
     apply.approved = Some(false)
+    apply.approvedAt = None
     entityDao.remove(getOccupancies(apply))
     apply.rooms.clear()
     entityDao.saveOrUpdate(log, apply)

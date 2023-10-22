@@ -25,11 +25,15 @@ import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.support.helper.QueryHelper
-import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.{Campus, Project}
+import org.openurp.base.edu.model.{Classroom, Holiday, TimeSetting}
+import org.openurp.base.model.{Building, Campus, Project}
+import org.openurp.base.service.UserCategories
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
-import org.openurp.edu.room.model.RoomApply
+import org.openurp.edu.room.model.{Occupancy, RoomApply}
 import org.openurp.starter.web.support.ProjectSupport
+
+import java.time.{Instant, LocalDate}
+import scala.collection.immutable.TreeMap
 
 class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
 
@@ -88,5 +92,67 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
   def preview(): View = {
     put(simpleEntityName, entityDao.get(classOf[RoomApply], getLongId("roomApply")))
     forward()
+  }
+
+  def switching(): View = {
+    val query = OqlBuilder.from(classOf[Holiday], "d")
+    query.where("d.startOn >= :today", LocalDate.now)
+    query.where("d.switchTo is not null")
+    val holidays = entityDao.search(query)
+    holidays foreach { holiday =>
+      val wt1 = WeekTime.of(holiday.startOn)
+      val wt2 = WeekTime.of(holiday.switchTo.get)
+
+      val q = OqlBuilder.from(classOf[Occupancy], "occ")
+      q.where("occ.time.startOn=:startOn", wt1.startOn)
+      q.where("bitand(occ.time.weekstate,:weekstate)>0", wt1.weekstate)
+      val occupancies = entityDao.search(q)
+      occupancies foreach { occ =>
+        val nq = OqlBuilder.from(classOf[Occupancy], "occ")
+        nq.where("occ.time.startOn=:startOn", wt2.startOn)
+        nq.where("occ.time.weekstate=:weekstate", wt2.weekstate)
+        nq.where("occ.activityId=:activityId", occ.activityId)
+        nq.where("occ.app=:app", occ.app)
+        val exists = entityDao.search(nq)
+        var newOcc: Occupancy = null
+        if (exists.isEmpty) {
+          newOcc = new Occupancy
+          newOcc.activityId = occ.activityId
+          newOcc.activityType = occ.activityType
+          newOcc.app = occ.app
+          newOcc.room = occ.room
+          newOcc.comments = "【调课】" + occ.comments
+          newOcc.time.beginAt = occ.time.beginAt
+          newOcc.time.endAt = occ.time.endAt
+          newOcc.time.startOn = wt2.startOn
+          newOcc.time.weekstate = wt2.weekstate
+          newOcc.updatedAt = Instant.now
+        }
+        occ.time.weekstate = occ.time.weekstate ^ wt1.weekstate
+        if (newOcc == null) entityDao.saveOrUpdate(occ)
+        else entityDao.saveOrUpdate(occ, newOcc)
+      }
+    }
+    redirect("search", "调整完成")
+  }
+
+  @mapping(value = "{id}/edit")
+  def edit(@param("id") id: Long): View = {
+    val apply = entityDao.get(classOf[RoomApply], id)
+    put("apply", apply)
+    put("time", apply.time.toApplyTime())
+    val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)
+    put("activityTypes", TreeMap.from(activityTypes.map(x => (x.id, x.name))))
+    forward("updateForm")
+  }
+
+  def updateApply(): View = {
+    val apply = entityDao.get(classOf[RoomApply], getLongId("apply"))
+    apply.activity.activityType = entityDao.get(classOf[ActivityType], getIntId("apply.activity.activityType"))
+    apply.activity.speaker = get("apply.activity.speaker", "--")
+    apply.activity.name = get("apply.activity.name", "--")
+    get("apply.applicant.mobile") foreach { mobile => apply.applicant.mobile = mobile }
+    entityDao.saveOrUpdate(apply)
+    redirect("search", "更新成功")
   }
 }

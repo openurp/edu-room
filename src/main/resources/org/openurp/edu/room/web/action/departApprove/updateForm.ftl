@@ -2,7 +2,7 @@
   [@b.toolbar title="教室借用申请"/]
   [@b.form name="roomSearchForm" action="!updateApply" theme="list"]
     [@b.field label="借用时间"]${time}[/@]
-    [@b.field label="拟借教室"][#list apply.rooms as r]${r.name}[#sep],[/#list][/@]
+    [@b.field label="拟借教室"][#list apply.rooms as r]${r.name}[#sep],[/#list]&nbsp;[/@]
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型" value=apply.activity.activityType.id/]
     [@b.textfield name="apply.activity.name" label="活动名称" value=(apply.activity.name)! required="true" style="width:300px"/]
     [@b.textfield name="apply.activity.speaker" label="主讲人" required="true" value=(apply.activity.speaker)! comment="上课可填任课教师"/]

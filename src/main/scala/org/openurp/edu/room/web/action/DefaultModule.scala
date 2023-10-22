@@ -28,7 +28,7 @@ class DefaultModule extends BindModule {
     bind(classOf[AvailableTimeAction])
     bind(classOf[OccupancyAction])
     bind(classOf[StaffApplyAction])
-    bind(classOf[AgentAction])
+    bind(classOf[DepartAgentAction])
     bind(classOf[ApproveAction])
     bind(classOf[DepartApproveAction])
     bind(classOf[FreeAction])
@@ -37,7 +37,7 @@ class DefaultModule extends BindModule {
     bind(classOf[ApplySearchAction])
 
     bind(classOf[DepartScopeAction])
-    bind(classOf[DepartAgentAction])
+    bind(classOf[AgentAction])
     bind(classOf[ApplyInfoAction])
 
     bind(classOf[OccupyReportAction])

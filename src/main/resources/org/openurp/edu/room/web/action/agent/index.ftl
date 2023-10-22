@@ -13,9 +13,8 @@
   }
 </style>
 [@b.toolbar title="教室代理借用"/]
-<table class="indexpanel">
-  <tr>
-    <td class="index_view">
+<div class="search-container">
+    <div class="search-panel">
       <form id="roomApplyIndexForm" name="roomApplyIndexForm" action="" method="post" target="contentDiv">
         <table id="viewTables" style="width: 100%;display: table;">
           <tr><td><img src="${b.static_url('bui','icons/16x16/actions/info.png')}" alt="info" class="toolbar-icon"/><em>教室申请菜单</em></td></tr>
@@ -31,12 +30,11 @@
           </tr>
         </table>
       </form>
-       </td>
-    <td class="index_content">
+    </div>
+    <div class="search-list">
       [@b.div id="contentDiv" href="!search" /]
-    </td>
-  </tr>
-</table>
+  </div>
+</div>
 <script language="JavaScript">
   function info(td,action){
     var viewTables = document.getElementById("viewTables");

@@ -10,6 +10,7 @@
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
     bar.addItem("${b.text('action.info')}", action.info());
+    bar.addItem("${b.text('action.edit')}",action.edit());
     bar.addItem("审核分配", action.single('applySetting'), "update.png");
     bar.addItem("${b.text('action.delete')}", action.remove());
     bar.addItem("${b.text("action.export")}",action.exportData("activity.name:活动名称,activity.activityType.name:活动类型,"+
@@ -40,16 +41,17 @@
         <span style="font-style: italic;">拟借:${roomApply.space.roomComment!}</span>
       [/#if]
     [/@]
-    [@b.col property="applicant.user.department.name" title="借用人部门"  width="10%"]
+    [@b.col property="applicant.user.department.name" title="借用人部门"  width="7%"]
       <div title="${roomApply.applicant.user.department.name}" class="limit_line">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
     [/@]
-    [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="12%"]
+    [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="8%"]
       [#if ((roomApply.applyBy.name)!'')==((roomApply.applicant.user.name)!'')]${roomApply.applyBy.name}
       [#else]${(roomApply.applyBy.name)!}(${(roomApply.applicant.user.name)!})[/#if]
     [/@]
+    [@b.col property="activity.speaker" title="主讲人" width="7%"/]
     [@b.col property="applyAt" title="日期"  width="6%"]${(roomApply.applyAt?string("yy-MM-dd"))?default("")}[/@]
-    [@b.col property="approved" title="状态"  width="7%"]
-      ${(roomApply.approved?string("审核通过","<font color='red'>审核不通过</font>"))?default("<font color='red'>待审核</font>")}
+    [@b.col property="approved" title="审核状态"  width="6%"]
+      ${(roomApply.approved?string("通过","<font color='red'>不通过</font>"))?default("<font color='red'>待审</font>")}
     [/@]
   [/@]
 [/@]

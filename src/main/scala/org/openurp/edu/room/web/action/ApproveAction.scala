@@ -35,7 +35,6 @@ import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
 
-import java.time.Instant
 import scala.sys.error
 
 class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {

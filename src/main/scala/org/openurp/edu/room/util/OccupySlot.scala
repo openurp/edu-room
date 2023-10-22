@@ -52,4 +52,3 @@ class OccupySlot(weekday: WeekDay, semester: Semester) {
     if c.length < maxlength then c else (c.substring(0, maxlength) + "...")
   }
 }
-

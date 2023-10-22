@@ -21,6 +21,7 @@
         [@b.select label="活动/用途" items=activityTypes name="roomApply.activity.activityType.id" empty="..."/]
         [@b.textfield label="借用人" maxlength="20" name="roomApply.applicant.user.name" placeholder="姓名"/]
         [@b.textfield label="经办人" maxlength="20" name="roomApply.applyBy.name"  placeholder="姓名"/]
+        [@b.textfield label="主讲人" maxlength="20" name="roomApply.activity.speaker"  placeholder="姓名"/]
         [@b.select label="多媒体" items={"1":"使用","0":"不使用"} empty="..." name="roomApply.space.requireMultimedia"/]
         [@b.date label="借用日期"  name="occupyOn" format="yyyy-MM-dd"/]
         [@b.select label="校区" items=campuses empty="..." name="roomApply.space.campus.id"/]
