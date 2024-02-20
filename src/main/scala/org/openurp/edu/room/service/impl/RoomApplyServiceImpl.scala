@@ -21,10 +21,10 @@ import org.beangle.data.dao.Query.Lang.OQL
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
 import org.beangle.ems.app.web.WebBusinessLogger
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Department, School, User}
 import org.openurp.base.service.UserCategories
-import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplySetting}
+import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplyReservedTime, RoomApplySetting}
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.{Occupancy, RoomApply, RoomOccupyApp}
 import org.openurp.edu.room.service.{RoomApplyService, SmsService}
@@ -141,4 +141,12 @@ class RoomApplyServiceImpl extends RoomApplyService {
       query.where("s.depart in(:departs)", departs)
       entityDao.search(query)
   }
+
+
+  override def getReservedTimes(school: School): Seq[RoomApplyReservedTime] = {
+    val query = OqlBuilder.from(classOf[RoomApplyReservedTime], "s")
+    query.where("s.school = :school", school)
+    entityDao.search(query)
+  }
+
 }

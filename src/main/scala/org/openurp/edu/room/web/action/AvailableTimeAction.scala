@@ -23,7 +23,7 @@ import org.beangle.commons.lang.{Enums, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Campus, Project}
 import org.openurp.edu.room.model.RoomAvailableTime
 import org.openurp.starter.web.support.ProjectSupport

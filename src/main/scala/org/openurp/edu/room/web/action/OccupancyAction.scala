@@ -24,8 +24,7 @@ import org.beangle.web.action.annotation.mapping
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.{Status, View}
 import org.beangle.webmvc.support.action.EntityAction
-import org.openurp.base.edu.model.Classroom
-import org.openurp.base.model.Building
+import org.openurp.base.resource.model.{Building, Classroom}
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.code.service.CodeService
 import org.openurp.edu.clazz.domain.WeekTimeBuilder

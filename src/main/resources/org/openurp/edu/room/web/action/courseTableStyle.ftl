@@ -5,7 +5,7 @@
 [#assign weekMap={'Mon':'星期一','Tue':'星期二','Wed':'星期三','Thu':'星期四','Fri':'星期五','Sat':'星期六','Sun':'星期日'}]
 [#macro initCourseTable(tableStyle,unitList,weekList)]
   [#if tableStyle==CourseTableStyle.WEEK_TABLE]
-    <table width="100%" id="manualArrangeCourseTable" align="center" class="gridtable"  style="text-align:center">
+    <table width="100%" id="manualArrangeCourseTable" align="center" class="grid-table"  style="text-align:center">
       <thead>
       <tr>
           <th style="background-color:#DEEDF7;" height="10px" width="150px">节次/周几</td>
@@ -31,7 +31,7 @@
         [/#list]
     </table>
   [#else]
-      <table width="100%" align="center" class="gridtable" id="manualArrangeCourseTable" style="text-align:center">
+      <table width="100%" align="center" class="grid-table" id="manualArrangeCourseTable" style="text-align:center">
         <thead>
         <tr height="10px">
           <th style="background-color: #DEEDF7;"></th>

@@ -19,11 +19,13 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.bean.orderings.MultiPropertyOrdering
 import org.beangle.commons.collection.Collections
+import org.beangle.commons.lang.time.WeekDay
 import org.beangle.data.dao.{Condition, OqlBuilder}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.{Classroom, TimeSetting}
-import org.openurp.base.model.{Building, Campus, Project, Semester}
+import org.openurp.base.edu.model.TimeSetting
+import org.openurp.base.model.{Campus, Project, Semester}
+import org.openurp.base.resource.model.{Building, Classroom}
 import org.openurp.code.edu.model.ClassroomType
 import org.openurp.edu.clazz.domain.WeekTimeBuilder
 import org.openurp.edu.room.model.Occupancy
@@ -74,8 +76,10 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     val slotMap = Collections.newMap[String, OccupySlot]
     val rooms = Collections.newSet[Classroom]
     val it = occupancies.iterator
+    val weekdaySet = Collections.newSet[WeekDay]
     while (it.hasNext) {
       val occ = it.next
+      weekdaySet.add(occ.time.weekday)
       val unitPair = timeSetting.getUnitSpan(occ.time.beginAt, occ.time.endAt)
       for (i <- unitPair._1 to unitPair._2) {
         val key = occ.room.id.toString + "_" + occ.time.weekday.id.toString + "_" + i.toString
@@ -86,7 +90,11 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     }
     put("slotMap", slotMap)
     import org.beangle.commons.lang.time.WeekDay.*
-    put("weekdays", List(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
+    val weekdayList = List(Mon, Tue, Wed, Thu, Fri, Sat, Sun).toBuffer
+    if (!weekdaySet.contains(Sat)) weekdayList.subtractOne(Sat)
+    if (!weekdaySet.contains(Sun)) weekdayList.subtractOne(Sun)
+
+    put("weekdays", weekdayList)
     put("units", timeSetting.units)
 
     val classrooms = rooms.toBuffer.sorted(new MultiPropertyOrdering("name"))

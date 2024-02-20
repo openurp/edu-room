@@ -18,6 +18,14 @@
     <td class="content" colspan="3">${setting.beginAt}~${setting.endAt}</td>
   </tr>
   <tr>
+    <td class="title">保留时段</td>
+    <td class="content" colspan="3">
+      [#list reservedTimes as rt]
+      ${rt.beginOn}~${rt.endOn}
+      [/#list]
+    </td>
+  </tr>
+  <tr>
     <td class="title">申请须知</td>
     <td class="content" colspan="3">
       ${setting.notice!}

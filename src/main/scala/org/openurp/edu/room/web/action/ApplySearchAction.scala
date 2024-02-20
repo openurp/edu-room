@@ -26,7 +26,7 @@ import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, ExportSupport}
 import org.beangle.webmvc.support.helper.QueryHelper
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Campus, Project}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.code.service.CodeService

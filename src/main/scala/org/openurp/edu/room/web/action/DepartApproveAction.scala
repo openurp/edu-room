@@ -25,9 +25,10 @@ import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.support.helper.QueryHelper
-import org.openurp.base.edu.model.{Classroom, Holiday, TimeSetting}
-import org.openurp.base.model.{Building, Campus, Project}
+import org.openurp.base.edu.model.{Holiday, TimeSetting}
+import org.openurp.base.model.{Campus, Project}
 import org.openurp.base.service.UserCategories
+import org.openurp.base.resource.model.Classroom
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.model.{Occupancy, RoomApply}
 import org.openurp.starter.web.support.ProjectSupport

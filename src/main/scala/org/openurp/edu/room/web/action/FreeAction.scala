@@ -24,8 +24,8 @@ import org.beangle.security.Securities
 import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
-import org.openurp.base.edu.model.{Classroom, CourseUnit, TimeSetting}
-import org.openurp.base.model.Building
+import org.openurp.base.edu.model.{CourseUnit, TimeSetting}
+import org.openurp.base.resource.model.{Building, Classroom}
 import org.openurp.edu.clazz.domain.WeekTimeBuilder
 import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.util.OccupancyUtils

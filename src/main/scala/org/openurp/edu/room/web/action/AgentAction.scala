@@ -20,7 +20,8 @@ package org.openurp.edu.room.web.action
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.view.View
 import org.openurp.base.edu.model.TimeSetting
-import org.openurp.base.model.{Building, Project}
+import org.openurp.base.model.Project
+import org.openurp.base.resource.model.Building
 import org.openurp.code.edu.model.ClassroomType
 import org.openurp.starter.web.support.ProjectSupport
 

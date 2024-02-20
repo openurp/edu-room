@@ -30,9 +30,10 @@ import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.EntityAction
 import org.beangle.webmvc.support.helper.QueryHelper
-import org.openurp.base.edu.model.{Classroom, TimeSetting}
+import org.openurp.base.edu.model.TimeSetting
 import org.openurp.base.model.*
 import org.openurp.base.service.UserCategories
+import org.openurp.base.resource.model.{Building, Classroom}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.*
@@ -69,10 +70,12 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
     q.where("b.endOn is null")
     put("buildings", entityDao.search(q))
 
-    put("roomTypes", codeService.get(classOf[ClassroomType]))
-    val setting = roomApplyService.getSetting(null).get
-    put("setting", setting)
     val applicant = getUser
+    put("roomTypes", codeService.get(classOf[ClassroomType]))
+    val setting = roomApplyService.getSetting(applicant.school).get
+    put("reservedTimes", roomApplyService.getReservedTimes(applicant.school))
+    put("setting", setting)
+
     if (Set(UserCategories.Teacher, UserCategories.Student).contains(applicant.category.id)) {
       put("beginOn", LocalDate.now().plusDays(setting.daysBeforeApply))
     } else {
@@ -212,6 +215,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
 
   protected def buildFreeRoomQuery(): OqlBuilder[Classroom] = {
     val time = getApplyTime()
+
     val weektimes = time.toWeektimes()
     val query = OccupancyUtils.buildFreeroomQuery(weektimes)
     query.where("room.roomNo is not null") //虚拟教室不能借用
@@ -229,7 +233,28 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
 
   def freeRooms(): View = {
     val query = buildFreeRoomQuery()
-    put("classrooms", entityDao.search(query))
+    query.limit(null)
+    val applicant = getUser
+    val reservedTimes = roomApplyService.getReservedTimes(applicant.school)
+    if (reservedTimes.nonEmpty) {
+      val time = getApplyTime()
+      val timeRange = (time.beginOn, time.endOn)
+      val classrooms = entityDao.search(query)
+      val applicant = getUser
+
+      val reserved = classrooms filter { r =>
+        reservedTimes exists { rt =>
+          if ((rt.building.isEmpty || rt.building == r.building)) {
+            !rt.endOn.isBefore(timeRange._1) && !timeRange._2.isBefore(rt.beginOn)
+          } else {
+            false
+          }
+        }
+      }
+      put("classrooms", classrooms.toBuffer.subtractAll(reserved))
+    } else {
+      put("classrooms", entityDao.search(query))
+    }
     forward()
   }
 

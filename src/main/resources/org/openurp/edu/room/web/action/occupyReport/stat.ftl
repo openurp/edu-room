@@ -20,42 +20,46 @@
       [/#if]
     [/#if]
   [/#list]
-  <div style="width:${120 + total * unitWidth}px;margin:0px 10px 0px 10px">
+  <div style="width:${110 + total * unitWidth}px;margin:0px 10px 0px 10px">
     <div style="text-align:center">
       <h5>${project.school.name} ${semester.schoolYear}${("（" + semester.name + "）学期")?replace("学期）学期", "小学期")}教室占用情况一览表<h5>
     </div>
-   <p style="margin: 0px;">占用内容说明：开头的1-16表示第1到16周，后面表示占用内容</p>
-    <table class="gridtable" id="occupyTable" style="text-align:center;width:${120 + total * unitWidth}px;border: 0.5px solid #006CB2;table-layout:fixed;work-break;break:all;text-align:center;font-size:8.5pt;font-family:宋体">
-        <thead class="gridhead">
-          <tr>
-            <td width="30px" rowspan="2">序号</td>
-            <td width="80px" rowspan="2">教室</td>
-            [#list weekdays as weekday]
-            <td colspan="${units?size}">${weekdayNames[weekday.id]}</td>
-            [/#list]
-          </tr>
-          <tr>
-            [#list weekdays as weekday]
-              [#list units as unit]
-              <td [#if seperatorIndexes?seq_contains(unit.indexno)]style="border-right-color: red;"[/#if]>${unit.indexno}</td>
-              [/#list]
-            [/#list]
-          </tr>
-        </thead>
-        [#list classrooms as room]
+    <table class="grid-table" id="occupyTable" style="text-align:center;width:${110 + total * unitWidth}px;border: 0.5px solid #006CB2;table-layout:fixed;work-break;break:all;text-align:center;font-size:8.5pt;font-family:宋体">
+      <colgroup>
+        <col width="30px">
+        <col width="80px">
+        <col span="${total}" width="${unitWidth}px"/>
+      </colgroup>
+      <thead class="grid-head">
         <tr>
-            <td width="30px">${room_index + 1}</td>
-            <td width="80px">[@b.a href="occupancy!classroom?id="+room.id target="_blank"]${room.name}(${room.courseCapacity})[/@]</td>
-            [#list weekdays as weekday]
-              [#list units as unit]
-              [#assign slotWeeks=(slotMap[room.id + "_" + weekday.id +"_"+ unit.indexno].weeks)!''  /]
-              <td id="${room.id+"_"+weekday.id +"_"+ unit.indexno}" title="${slotWeeks} ${(slotMap[room.id + "_" + weekday.id +"_"+ unit.indexno].comments)?if_exists}">[#t/]
-              ${slotWeeks}[#t/]
-              </td>[#t/]
-              [/#list]
-            [/#list]
+          <td width="30px" rowspan="2">序号</td>
+          <td width="80px" rowspan="2">教室</td>
+          [#list weekdays as weekday]
+          <td colspan="${units?size}">${weekdayNames[weekday.id]}</td>
+          [/#list]
         </tr>
-        [/#list]
+        <tr>
+          [#list weekdays as weekday]
+            [#list units as unit]
+            <td [#if seperatorIndexes?seq_contains(unit.indexno)]style="border-right-color: red;"[/#if]>${unit.indexno}</td>
+            [/#list]
+          [/#list]
+        </tr>
+      </thead>
+      [#list classrooms as room]
+      <tr>
+          <td width="30px">${room_index + 1}</td>
+          <td width="80px">[@b.a href="occupancy!classroom?id="+room.id target="_blank"]${room.name}(${room.courseCapacity})[/@]</td>
+          [#list weekdays as weekday]
+            [#list units as unit]
+            [#assign slotWeeks=(slotMap[room.id + "_" + weekday.id +"_"+ unit.indexno].weeks)!''  /]
+            <td id="${room.id+"_"+weekday.id +"_"+ unit.indexno}" title="${slotWeeks} ${(slotMap[room.id + "_" + weekday.id +"_"+ unit.indexno].comments)?if_exists}">[#t/]
+            ${slotWeeks}[#t/]
+            </td>[#t/]
+            [/#list]
+          [/#list]
+      </tr>
+      [/#list]
     </table>
     <script>
     function mergeTable(){

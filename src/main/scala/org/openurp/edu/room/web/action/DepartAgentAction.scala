@@ -21,7 +21,7 @@ import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.mapping
 import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.*
 import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.room.model.*

@@ -19,7 +19,7 @@ package org.openurp.edu.room.util
 
 import org.beangle.commons.lang.time.WeekTime
 import org.beangle.data.dao.{Condition, OqlBuilder}
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.edu.room.model.Occupancy
 
 import java.time.LocalDate

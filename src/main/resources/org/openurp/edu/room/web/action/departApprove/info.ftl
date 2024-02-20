@@ -50,9 +50,9 @@
 
 [#if roomApply.rooms?size>0]
 <div align="center"><B>分配教室列表</B></div>
-<table class="gridtable" style="border:0.5px solid #006CB2">
+<table class="grid-table" style="border:0.5px solid #006CB2">
   <thead>
-    <tr class="gridhead">
+    <tr class="grid-head">
       <td width="10%">序号</td>
       <td width="25%">教室</td>
       <td width="25%">教学楼</td>

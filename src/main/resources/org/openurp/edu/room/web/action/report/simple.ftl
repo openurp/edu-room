@@ -1,6 +1,5 @@
 [#ftl]
 [@b.head/]
-[#--[#include "/template/print.ftl" /]--]
 [@b.toolbar title="教室借用凭条"]
   bar.addPrint();
   bar.addBackOrClose();

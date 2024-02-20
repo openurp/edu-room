@@ -26,7 +26,7 @@ import org.beangle.template.freemarker.ProfileTemplateLoader
 import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.ExportSupport
-import org.openurp.base.edu.model.Classroom
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Project, User}
 import org.openurp.code.edu.model.ClassroomType
 import org.openurp.edu.room.log.RoomApplyAuditLog
@@ -140,7 +140,6 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
       case Some(capacity) => query.where("room.capacity>=:capacity", capacity)
       case None => query.where("room.capacity>=:capacity", apply.space.unitAttendance)
     }
-    println(get(Order.OrderStr))
     get(Order.OrderStr) match {
       case Some(orderClause) => if (orderClause.startsWith("room.")) query.orderBy(orderClause)
       case None => query.orderBy("room.name,room.capacity")
