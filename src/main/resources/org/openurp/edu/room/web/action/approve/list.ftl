@@ -1,17 +1,10 @@
 [#ftl]
 [@b.head/]
-<style>
-.limit_line {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
     bar.addItem("${b.text('action.info')}", action.info());
     bar.addItem("${b.text('action.edit')}",action.edit());
-    bar.addItem("审核分配", action.single('applySetting'), "update.png");
+    bar.addItem("审核分配", action.single('auditForm'), "update.png");
     bar.addItem("${b.text('action.delete')}", action.remove());
     bar.addItem("${b.text("action.export")}",action.exportData("activity.name:活动名称,activity.activityType.name:活动类型,"+
                 "time:申请占用时间,rooms:借用教室,space.campus.name:借用校区,activity.attendanceNum:出席总人数,"+
@@ -42,7 +35,7 @@
       [/#if]
     [/@]
     [@b.col property="applicant.user.department.name" title="借用人部门"  width="7%"]
-      <div title="${roomApply.applicant.user.department.name}" class="limit_line">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
+      <div title="${roomApply.applicant.user.department.name}" class="text-ellipsis">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
     [/@]
     [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="8%"]
       [#if ((roomApply.applyBy.name)!'')==((roomApply.applicant.user.name)!'')]${roomApply.applyBy.name}

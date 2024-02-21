@@ -23,6 +23,7 @@ import org.beangle.commons.lang.time.WeekDay
 import org.beangle.data.dao.{Condition, OqlBuilder}
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.helper.QueryHelper
 import org.openurp.base.edu.model.TimeSetting
 import org.openurp.base.model.{Campus, Project, Semester}
 import org.openurp.base.resource.model.{Building, Classroom}
@@ -45,6 +46,16 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     put("campuses", findInSchool(classOf[Campus]))
     put("buildings", findInSchool(classOf[Building]))
     forward()
+  }
+
+  override def getQueryBuilder: OqlBuilder[Classroom] = {
+    val builder = super.getQueryBuilder
+    builder.where("classroom.school=:school", getProject.school)
+    QueryHelper.addActive(builder, Some(true))
+    getBoolean("virtual") foreach { virtual =>
+      builder.where(if (virtual) "classroom.roomNo is null" else "classroom.roomNo is not null")
+    }
+    builder
   }
 
   def stat(): View = {
@@ -101,6 +112,6 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     put("classrooms", classrooms)
     put("semester", semester)
     put("project", getProject)
-    forward("report_"+get("report", "week"))
+    forward("report_" + get("report", "week"))
   }
 }

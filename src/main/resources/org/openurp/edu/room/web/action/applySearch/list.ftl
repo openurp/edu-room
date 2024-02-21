@@ -1,12 +1,5 @@
 [#ftl]
 [@b.head/]
-<style>
-.limit_line {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>
 [@b.grid items=roomApplies var="roomApply"]
   [@b.gridbar]
     bar.addItem("${b.text("action.export")}",action.exportData("activity.name:活动名称,activity.activityType.name:活动类型,"+
@@ -26,7 +19,7 @@
         [#list roomApply.rooms as room]${(room.name)!}[#if room_has_next]&nbsp;[/#if][/#list]
     [/@]
     [@b.col property="applicant.user.department.name" title="借用人部门"  width="10%"]
-      <div title="${roomApply.applicant.user.department.name}" class="limit_line">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
+      <div title="${roomApply.applicant.user.department.name}" class="text-ellipsis">${(roomApply.applicant.user.department.shortName)!roomApply.applicant.user.department.name}</div>
     [/@]
     [@b.col property="applicant.user" sortable="false" title="经办(借用人)"  width="12%"]
       [#if ((roomApply.applyBy.name)!'')==((roomApply.applicant.user.name)!'')]${roomApply.applyBy.name}

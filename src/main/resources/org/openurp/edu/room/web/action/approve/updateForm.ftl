@@ -23,6 +23,7 @@
           onFocus="WdatePicker({dateFmt:'HH:mm',minDate:'#F{$dp.$D(\'beginAt\')}'})" maxlength="5" placeholder="HH:mm"/>
       </div>
     [/@]
+    [#if apply.approved][@b.field label="注意事项"]<div style="color:red">如果修改时间，提交后，系统会引导至审核分配界面。</div>[/@][/#if]
     [@b.field label="拟借教室"][#list apply.rooms as r]${r.name}[#sep],[/#list]&nbsp;[/@]
     [@b.radios name="apply.activity.activityType.id" items=activityTypes label="活动类型" value=apply.activity.activityType.id/]
     [@b.textfield name="apply.activity.name" label="活动名称" value=(apply.activity.name)! required="true" style="width:300px"/]

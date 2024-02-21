@@ -37,7 +37,6 @@ import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
 
-import java.time.Instant
 import scala.sys.error
 
 class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
@@ -200,11 +199,14 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
       apply.time.times.addAll(time.toWeektimes())
       apply.time.beginOn = time.beginOn
       apply.time.endOn = time.endOn
-
       entityDao.saveOrUpdate(apply)
-      roomApplyService.reject(apply, approveBy, "调整时间")
       businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
-      redirect("auditForm", "&roomApply.id=" + apply.id, "修改成功，请重新分配教室")
+      if (apply.approved.getOrElse(false)) {//如果已经成功的申请，需要重新分配教室
+        roomApplyService.reject(apply, approveBy, "调整时间")
+        redirect("auditForm", "&roomApply.id=" + apply.id, "修改成功，请重新分配教室")
+      } else {
+        redirect("search", "更新成功")
+      }
     } else {
       businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
       redirect("search", "更新成功")
