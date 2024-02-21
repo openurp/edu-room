@@ -22,7 +22,7 @@
       <thead class="grid-head">
         <tr>
           <td rowspan="2">序号</td>
-          <td rowspan="2">教室</td>
+          <td rowspan="2">教室(上课容量)</td>
           [#list weekdays as weekday]
           <td colspan="${units?size}">${weekdayNames[weekday.id]}</td>
           [/#list]

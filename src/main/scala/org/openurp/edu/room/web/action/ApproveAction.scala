@@ -19,22 +19,25 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
+import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.data.transfer.exporter.ExportContext
 import org.beangle.security.Securities
 import org.beangle.template.freemarker.ProfileTemplateLoader
 import org.beangle.web.action.annotation.{mapping, param}
+import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.ExportSupport
-import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Project, User}
-import org.openurp.code.edu.model.ClassroomType
+import org.openurp.base.resource.model.Classroom
+import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.log.RoomApplyAuditLog
-import org.openurp.edu.room.model.RoomApply
+import org.openurp.edu.room.model.{ApplyTime, RoomApply}
 import org.openurp.edu.room.service.RoomApplyService
 import org.openurp.edu.room.util.OccupancyUtils
 import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
 
+import java.time.Instant
 import scala.sys.error
 
 class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
@@ -67,7 +70,7 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
   /**
    * 给申请分配教室
    */
-  def applySetting(): View = {
+  def auditForm(): View = {
     given project: Project = getProject
 
     val id = getLongId("roomApply")
@@ -171,6 +174,41 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
       redirect("search", s"成功删除${removed.size}个申请(已经审批的，需要取消审批后才能删除)")
     else
       redirect("search", "info.remove.success")
+  }
+
+  override def updateApply(): View = {
+    val apply = entityDao.get(classOf[RoomApply], getLongId("apply"))
+
+    apply.activity.activityType = entityDao.get(classOf[ActivityType], getIntId("apply.activity.activityType"))
+    apply.activity.speaker = get("apply.activity.speaker", "--")
+    apply.activity.name = get("apply.activity.name", "--")
+    get("apply.applicant.mobile") foreach { mobile => apply.applicant.mobile = mobile }
+    entityDao.saveOrUpdate(apply)
+
+    val approveBy = getUser
+    val time = new ApplyTime()
+    time.beginOn = getDate("time.beginOn").get
+    getDate("time.endOn") foreach { d => time.endOn = d }
+    time.beginAt = HourMinute(get("time.beginAt", "00:00"))
+    time.endAt = HourMinute(get("time.endAt", "00:00"))
+    time.cycle = getInt("time.cycle", 1)
+    time.build()
+
+    val exist = apply.time.toApplyTime()
+    if (exist.beginOn != time.beginOn || exist.endOn != time.endOn || exist.beginAt != time.beginAt || exist.endAt != time.endAt || exist.cycle != time.cycle) {
+      apply.time.times.clear()
+      apply.time.times.addAll(time.toWeektimes())
+      apply.time.beginOn = time.beginOn
+      apply.time.endOn = time.endOn
+
+      entityDao.saveOrUpdate(apply)
+      roomApplyService.reject(apply, approveBy, "调整时间")
+      businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
+      redirect("auditForm", "&roomApply.id=" + apply.id, "修改成功，请重新分配教室")
+    } else {
+      businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
+      redirect("search", "更新成功")
+    }
   }
 
   protected override def configExport(context: ExportContext): Unit = {

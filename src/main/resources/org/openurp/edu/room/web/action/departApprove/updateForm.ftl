@@ -1,5 +1,5 @@
 [@b.head/]
-  [@b.toolbar title="教室借用申请"/]
+  [@b.toolbar title="修改教室借用申请"/]
   [@b.form name="roomSearchForm" action="!updateApply" theme="list"]
     [@b.field label="借用时间"]${time}[/@]
     [@b.field label="拟借教室"][#list apply.rooms as r]${r.name}[#sep],[/#list]&nbsp;[/@]

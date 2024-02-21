@@ -18,16 +18,16 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
-import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.WeekTime
 import org.beangle.data.dao.{Conditions, OqlBuilder}
+import org.beangle.ems.app.web.WebBusinessLogger
 import org.beangle.web.action.annotation.{mapping, param}
+import org.beangle.web.action.context.ActionContext
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.support.helper.QueryHelper
-import org.openurp.base.edu.model.{Holiday, TimeSetting}
+import org.openurp.base.edu.model.Holiday
 import org.openurp.base.model.{Campus, Project}
-import org.openurp.base.service.UserCategories
 import org.openurp.base.resource.model.Classroom
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.edu.room.model.{Occupancy, RoomApply}
@@ -37,6 +37,7 @@ import java.time.{Instant, LocalDate}
 import scala.collection.immutable.TreeMap
 
 class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
+  var businessLogger: WebBusinessLogger = _
 
   override def indexSetting(): Unit = {
     given project: Project = getProject
@@ -95,6 +96,10 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
     forward()
   }
 
+  /** 根据节假日调整占用情况
+   *
+   * @return
+   */
   def switching(): View = {
     val query = OqlBuilder.from(classOf[Holiday], "d")
     query.where("d.startOn >= :today", LocalDate.now)
@@ -154,6 +159,7 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
     apply.activity.name = get("apply.activity.name", "--")
     get("apply.applicant.mobile") foreach { mobile => apply.applicant.mobile = mobile }
     entityDao.saveOrUpdate(apply)
+    businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
     redirect("search", "更新成功")
   }
 }

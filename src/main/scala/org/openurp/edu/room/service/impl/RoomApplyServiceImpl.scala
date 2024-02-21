@@ -17,12 +17,10 @@
 
 package org.openurp.edu.room.service.impl
 
-import org.beangle.data.dao.Query.Lang.OQL
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.Ems
-import org.beangle.ems.app.web.WebBusinessLogger
-import org.openurp.base.resource.model.Classroom
 import org.openurp.base.model.{Department, School, User}
+import org.openurp.base.resource.model.Classroom
 import org.openurp.base.service.UserCategories
 import org.openurp.edu.room.config.{RoomApplyDepartScope, RoomApplyReservedTime, RoomApplySetting}
 import org.openurp.edu.room.log.RoomApplyAuditLog
