@@ -2,8 +2,9 @@
 [@b.head/]
 [@b.grid items=classrooms var="classroom"]
   [@b.gridbar]
-    bar.addItem("占用汇总",action.multi('stat',null,"report=0","_blank"));
-    bar.addItem("详情汇总",action.multi('stat',null,"report=1","_blank"));
+    bar.addItem("占用汇总",action.multi('stat',null,"report=week","_blank"));
+    var m = bar.addMenu("详情汇总",action.multi('stat',null,"report=portrait","_blank"));
+    m.addItem("详情汇总(宽表)",action.multi('stat',null,"report=landscape","_blank"));
   [/@]
   [@b.row]
     [@b.boxcol /]

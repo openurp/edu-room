@@ -101,6 +101,6 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     put("classrooms", classrooms)
     put("semester", semester)
     put("project", getProject)
-    if getBoolean("report", false) then forward("report") else forward("stat")
+    forward("report_"+get("report", "week"))
   }
 }
