@@ -112,7 +112,7 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
         builder.where("room.id in (:roomIds)", roomIds)
         val classrooms = entityDao.search(builder)
         if (classrooms.size != roomIds.length) {
-          return redirect("applySetting", "roomApply.id=" + roomApply.id, "该教室已被占用,请重新查找空闲教室")
+          return redirect("auditForm", "roomApply.id=" + roomApply.id, "该教室已被占用,请重新查找空闲教室")
         }
         val rooms = entityDao.find(classOf[Classroom], roomIds)
         if (roomApplyService.approve(roomApply, getUser, rooms)) redirect("search", "info.action.success")

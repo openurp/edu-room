@@ -24,6 +24,6 @@
     if (roomIds == "") { alert("请选择教室进行操作!"); return; }
     var form = document.actionForm;
     form["roomIds"].value=form["roomIds"].value +","+ roomIds;
-    bg.form.submit(form, "${b.url('!applySetting')}");
+    bg.form.submit(form, "${b.url('!auditForm')}");
   }
 </script>
