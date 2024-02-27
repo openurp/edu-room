@@ -17,8 +17,8 @@
 
 package org.openurp.edu.room.web.action
 
-import org.beangle.commons.lang.time.{WeekState, WeekTime}
-import org.beangle.data.dao.{Conditions, EntityDao, OqlBuilder}
+import org.beangle.commons.lang.time.WeekTime
+import org.beangle.data.dao.{Condition, Conditions, EntityDao, OqlBuilder}
 import org.beangle.data.transfer.exporter.ExportContext
 import org.beangle.template.freemarker.ProfileTemplateLoader
 import org.beangle.web.action.annotation.param
@@ -26,13 +26,12 @@ import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.{EntityAction, ExportSupport}
 import org.beangle.webmvc.support.helper.QueryHelper
+import org.openurp.base.model.Campus
 import org.openurp.base.resource.model.Classroom
-import org.openurp.base.model.{Campus, Project}
 import org.openurp.code.edu.model.{ActivityType, ClassroomType}
 import org.openurp.code.service.CodeService
 import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
-import org.openurp.starter.web.support.ProjectSupport
 
 /** 借用查询
  */
@@ -65,7 +64,9 @@ class ApplySearchAction extends ActionSupport, EntityAction[RoomApply], ExportSu
     query.where("roomApply.approved=true")
     val roomConditions = QueryHelper.extractConditions(classOf[Classroom], "room", null)
     if (roomConditions.nonEmpty) {
-      query.where(s"exists(from roomApply.rooms as room where ${Conditions.toQueryString(roomConditions)})", roomConditions.flatMap(_.params))
+      val params = roomConditions.flatten(_.params)
+      val con = new Condition(s"exists(from roomApply.rooms as room where ${Conditions.toQueryString(roomConditions)})").params(params)
+      query.where(con)
     }
     getDate("occupyOn") foreach { occupyOn =>
       val wt = WeekTime.of(occupyOn)
