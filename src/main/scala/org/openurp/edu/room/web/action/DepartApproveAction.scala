@@ -19,7 +19,7 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.time.WeekTime
-import org.beangle.data.dao.{Conditions, OqlBuilder}
+import org.beangle.data.dao.{Condition, Conditions, OqlBuilder}
 import org.beangle.ems.app.web.WebBusinessLogger
 import org.beangle.web.action.annotation.{mapping, param}
 import org.beangle.web.action.context.ActionContext
@@ -56,7 +56,9 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
     builder.where("roomApply.school = :school", getProject.school)
     val roomConditions = QueryHelper.extractConditions(classOf[Classroom], "room", null)
     if (roomConditions.nonEmpty) {
-      builder.where(s"exists(from roomApply.rooms as room where ${Conditions.toQueryString(roomConditions)})", roomConditions.flatMap(_.params))
+      val params = roomConditions.flatten(_.params)
+      val con = new Condition(s"exists(from roomApply.rooms as room where ${Conditions.toQueryString(roomConditions)})").params(params)
+      builder.where(con)
     }
     getDate("occupyOn") foreach { occupyOn =>
       val wt = WeekTime.of(occupyOn)
