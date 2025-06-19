@@ -21,15 +21,16 @@ import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.time.WeekTime
 import org.beangle.data.dao.{Condition, Conditions, OqlBuilder}
 import org.beangle.ems.app.web.WebBusinessLogger
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.context.ActionContext
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.support.helper.QueryHelper
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.Holiday
 import org.openurp.base.model.{Campus, Project}
 import org.openurp.base.resource.model.Classroom
-import org.openurp.code.edu.model.{ActivityType, ClassroomType}
+import org.openurp.code.asset.model.ClassroomType
+import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.room.model.{Occupancy, RoomApply}
 import org.openurp.starter.web.support.ProjectSupport
 

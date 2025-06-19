@@ -17,17 +17,17 @@
 
 package org.openurp.edu.room.web.action
 
-import org.beangle.commons.bean.orderings.MultiPropertyOrdering
+import org.beangle.commons.bean.orderings.PropertyOrdering
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.time.WeekDay
 import org.beangle.data.dao.{Condition, OqlBuilder}
-import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.beangle.webmvc.support.helper.QueryHelper
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.TimeSetting
 import org.openurp.base.model.{Campus, Project, Semester}
 import org.openurp.base.resource.model.{Building, Classroom}
-import org.openurp.code.edu.model.ClassroomType
+import org.openurp.code.asset.model.ClassroomType
 import org.openurp.edu.clazz.domain.WeekTimeBuilder
 import org.openurp.edu.room.model.Occupancy
 import org.openurp.edu.room.util.OccupySlot
@@ -108,7 +108,7 @@ class OccupyReportAction extends RestfulAction[Classroom], ProjectSupport {
     put("weekdays", weekdayList)
     put("units", timeSetting.units)
 
-    val classrooms = rooms.toBuffer.sorted(new MultiPropertyOrdering("name"))
+    val classrooms = rooms.toBuffer.sorted(PropertyOrdering.by("name"))
     put("classrooms", classrooms)
     put("semester", semester)
     put("project", getProject)

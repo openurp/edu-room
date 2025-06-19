@@ -21,8 +21,8 @@ import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.security.Securities
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.edu.model.{CourseUnit, TimeSetting}
 import org.openurp.base.resource.model.{Building, Classroom}

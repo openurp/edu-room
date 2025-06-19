@@ -18,7 +18,7 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.resource.model.Classroom
 import org.openurp.edu.room.config.RoomApplyDepartScope

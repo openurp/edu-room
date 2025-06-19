@@ -21,16 +21,18 @@ import org.beangle.commons.collection.Order
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.data.transfer.exporter.ExportContext
+import org.beangle.doc.transfer.exporter.ExportContext
 import org.beangle.security.Securities
+import org.beangle.template.api.DynaProfile
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.context.ActionContext
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.action.ExportSupport
+import org.beangle.webmvc.view.View
 import org.openurp.base.model.{Project, User}
 import org.openurp.base.resource.model.Classroom
-import org.openurp.code.edu.model.{ActivityType, ClassroomType}
+import org.openurp.code.asset.model.ClassroomType
+import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.{ApplyTime, RoomApply}
 import org.openurp.edu.room.service.RoomApplyService
@@ -47,7 +49,7 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
     val id = getLongId("roomApply")
     val apply = entityDao.get(classOf[RoomApply], id)
     put("roomApply", apply)
-    ProfileTemplateLoader.setProfile(apply.school.id)
+    DynaProfile.set(apply.school.id)
     forward("../report")
   }
 
@@ -201,7 +203,7 @@ class ApproveAction extends DepartApproveAction, ExportSupport[RoomApply] {
       apply.time.endOn = time.endOn
       entityDao.saveOrUpdate(apply)
       businessLogger.info(s"调整了教室借用内容", apply.id, ActionContext.current.params)
-      if (apply.approved.getOrElse(false)) {//如果已经成功的申请，需要重新分配教室
+      if (apply.approved.getOrElse(false)) { //如果已经成功的申请，需要重新分配教室
         roomApplyService.reject(apply, approveBy, "调整时间")
         redirect("auditForm", "&roomApply.id=" + apply.id, "修改成功，请重新分配教室")
       } else {

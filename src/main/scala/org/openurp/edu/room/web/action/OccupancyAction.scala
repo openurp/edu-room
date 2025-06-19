@@ -20,9 +20,9 @@ package org.openurp.edu.room.web.action
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.Numbers
 import org.beangle.data.dao.{Condition, EntityDao, OqlBuilder}
-import org.beangle.web.action.annotation.mapping
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.{Status, View}
+import org.beangle.webmvc.annotation.mapping
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.{Status, View}
 import org.beangle.webmvc.support.action.EntityAction
 import org.openurp.base.resource.model.{Building, Classroom}
 import org.openurp.code.edu.model.ActivityType

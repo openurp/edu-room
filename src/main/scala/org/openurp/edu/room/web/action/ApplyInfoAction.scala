@@ -20,10 +20,11 @@ package org.openurp.edu.room.web.action
 import org.beangle.commons.lang.Numbers
 import org.beangle.data.dao.Query.Lang.OQL
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
+import org.beangle.template.api.DynaProfile
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.{Status, View}
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.{Status, View}
 import org.openurp.edu.room.model.RoomApply
 
 /** 展示教室申请的凭证页面，公开的。
@@ -40,7 +41,7 @@ class ApplyInfoAction extends ActionSupport {
         case Some(apply) =>
           if (apply.rooms.nonEmpty) {
             put("roomApply", apply)
-            ProfileTemplateLoader.setProfile(apply.school.id)
+            DynaProfile.set(apply.school.id)
             forward("../report")
           } else {
             Status.NotFound

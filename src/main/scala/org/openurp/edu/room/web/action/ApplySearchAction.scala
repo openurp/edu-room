@@ -19,16 +19,18 @@ package org.openurp.edu.room.web.action
 
 import org.beangle.commons.lang.time.WeekTime
 import org.beangle.data.dao.{Condition, Conditions, EntityDao, OqlBuilder}
-import org.beangle.data.transfer.exporter.ExportContext
+import org.beangle.doc.transfer.exporter.ExportContext
+import org.beangle.template.api.DynaProfile
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.annotation.param
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.param
+import org.beangle.webmvc.support.ActionSupport
 import org.beangle.webmvc.support.action.{EntityAction, ExportSupport}
 import org.beangle.webmvc.support.helper.QueryHelper
+import org.beangle.webmvc.view.View
 import org.openurp.base.model.Campus
 import org.openurp.base.resource.model.Classroom
-import org.openurp.code.edu.model.{ActivityType, ClassroomType}
+import org.openurp.code.asset.model.ClassroomType
+import org.openurp.code.edu.model.ActivityType
 import org.openurp.code.service.CodeService
 import org.openurp.edu.room.model.RoomApply
 import org.openurp.edu.room.web.helper.RoomApplyPropertyExtractor
@@ -50,7 +52,7 @@ class ApplySearchAction extends ActionSupport, EntityAction[RoomApply], ExportSu
   def report(@param("id") id: String): View = {
     val apply = entityDao.get(classOf[RoomApply], id.toLong)
     put("roomApply", apply)
-    ProfileTemplateLoader.setProfile(apply.school.id)
+    DynaProfile.set(apply.school.id)
     forward("../report")
   }
 

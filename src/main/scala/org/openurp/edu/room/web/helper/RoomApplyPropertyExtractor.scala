@@ -17,15 +17,15 @@
 
 package org.openurp.edu.room.web.helper
 
-import org.beangle.data.transfer.exporter.DefaultPropertyExtractor
+import org.beangle.commons.bean.DefaultPropertyExtractor
 import org.openurp.edu.room.model.RoomApply
 
 class RoomApplyPropertyExtractor extends DefaultPropertyExtractor {
 
-  override def getPropertyValue(target: Object, property: String): Any = {
+  override def get(target: Object, property: String): Any = {
     property match {
       case "rooms" => target.asInstanceOf[RoomApply].rooms.map(_.name).mkString(",")
-      case _ => super.getPropertyValue(target, property)
+      case _ => super.get(target, property)
     }
   }
 }

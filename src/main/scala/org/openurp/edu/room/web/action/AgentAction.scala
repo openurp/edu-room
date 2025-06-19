@@ -18,11 +18,11 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.data.dao.OqlBuilder
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.TimeSetting
 import org.openurp.base.model.Project
 import org.openurp.base.resource.model.Building
-import org.openurp.code.edu.model.ClassroomType
+import org.openurp.code.asset.model.ClassroomType
 import org.openurp.starter.web.support.ProjectSupport
 
 import java.time.{Instant, LocalDate}

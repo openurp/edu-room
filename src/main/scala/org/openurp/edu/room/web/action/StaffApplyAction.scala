@@ -23,18 +23,20 @@ import org.beangle.commons.lang.time.HourMinute
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.beangle.ems.app.web.WebBusinessLogger
 import org.beangle.security.Securities
+import org.beangle.template.api.DynaProfile
 import org.beangle.template.freemarker.ProfileTemplateLoader
-import org.beangle.web.action.annotation.{mapping, param}
-import org.beangle.web.action.context.ActionContext
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{mapping, param}
+import org.beangle.webmvc.context.ActionContext
+import org.beangle.webmvc.support.ActionSupport
 import org.beangle.webmvc.support.action.EntityAction
 import org.beangle.webmvc.support.helper.QueryHelper
+import org.beangle.webmvc.view.View
 import org.openurp.base.edu.model.TimeSetting
 import org.openurp.base.model.*
-import org.openurp.base.service.UserCategories
 import org.openurp.base.resource.model.{Building, Classroom}
-import org.openurp.code.edu.model.{ActivityType, ClassroomType}
+import org.openurp.base.service.UserCategories
+import org.openurp.code.asset.model.ClassroomType
+import org.openurp.code.edu.model.ActivityType
 import org.openurp.edu.room.log.RoomApplyAuditLog
 import org.openurp.edu.room.model.*
 import org.openurp.edu.room.service.{RoomApplyService, SmsService}
@@ -269,7 +271,7 @@ class StaffApplyAction extends ActionSupport, EntityAction[RoomApply], ProjectSu
   def report(@param("id") id: String): View = {
     val apply = entityDao.get(classOf[RoomApply], id.toLong)
     put("roomApply", apply)
-    ProfileTemplateLoader.setProfile(apply.school.id)
+    DynaProfile.set(apply.school.id)
     forward("../report")
   }
 

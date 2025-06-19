@@ -17,7 +17,7 @@
 
 package org.openurp.edu.room.service
 
-import org.beangle.cdi.bind.BindModule
+import org.beangle.commons.cdi.BindModule
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.io.{Dirs, IOs}
 import org.beangle.ems.app.EmsApp
