@@ -18,9 +18,6 @@
 package org.openurp.edu.room.web.action
 
 import org.beangle.commons.cdi.BindModule
-import org.openurp.edu.room.service.RoomApplyService
-import org.openurp.edu.room.service.impl.RoomApplyServiceImpl
-import org.openurp.edu.room.util.OccupancyUtils
 
 class DefaultModule extends BindModule {
 
