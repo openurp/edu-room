@@ -146,8 +146,8 @@ class DepartApproveAction extends RestfulAction[RoomApply] with ProjectSupport {
   }
 
   @mapping(value = "{id}/edit")
-  def edit(@param("id") id: Long): View = {
-    val apply = entityDao.get(classOf[RoomApply], id)
+  override def edit(@param("id") id: String): View = {
+    val apply = entityDao.get(classOf[RoomApply], id.toLong)
     put("apply", apply)
     put("time", apply.time.toApplyTime())
     val activityTypes = codeService.get(classOf[ActivityType]).sortBy(_.id)

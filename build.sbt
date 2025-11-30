@@ -2,7 +2,7 @@ import org.openurp.parent.Dependencies.*
 import org.openurp.parent.Settings.*
 
 ThisBuild / organization := "org.openurp.edu.room"
-ThisBuild / version := "0.0.5-SNAPSHOT"
+ThisBuild / version := "0.0.5"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Edu Room Webapp"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-room/index.html"))
 
-val apiVer = "0.46.0"
-val starterVer = "0.4.0"
-val baseVer = "0.4.55"
-val eduCoreVer = "0.3.16"
+val apiVer = "0.48.2"
+val starterVer = "0.4.8"
+val baseVer = "0.4.63"
+val eduCoreVer = "0.4.3"
 
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_base_api = "org.openurp.base" % "openurp-base-api" % apiVer
@@ -35,7 +35,7 @@ val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starter
 val openurp_edu_core = "org.openurp.edu" % "openurp-edu-core" % eduCoreVer
 
 lazy val root = (project in file("."))
-  .enablePlugins(WarPlugin, UndertowPlugin, TomcatPlugin)
+  .enablePlugins(WarPlugin, TomcatPlugin)
   .settings(
     name := "openurp-edu-room-webapp",
     common,
